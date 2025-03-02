@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canteen Analytics</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        :root {
+            --dark-bg: #121212;
+            --card-bg: #1e1e1e;
+            --accent: #ff7d00;
+            --accent-light: rgba(255, 125, 0, 0.2);
+            --text: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --border: #333333;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--dark-bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        
+        header {
+            background-color: var(--card-bg);
+            color: var(--text);
+            padding: 1.2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            border-bottom: 2px solid var(--accent);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            margin-left: 1.5rem;
+            transition: color 0.3s;
+            font-weight: 500;
+            position: relative;
+        }
+        
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: var(--accent);
+            transition: width 0.3s;
+        }
+        
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        
+        h1, h2, h3 {
+            margin-top: 0;
+            font-weight: 600;
+        }
+        
+        h1 {
+            background: linear-gradient(to right, #ff7d00, #ffaa00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 2rem;
+        }
+        
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.8rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border-left: 3px solid var(--accent);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .card-value {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: var(--accent);
+            margin-top: 0.5rem;
+        }
+        
+        .chart-container {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.8rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .flex-row {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .chart-card {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .date-filter {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 1rem;
+        }
+        
+        th, td {
+            text-align: left;
+            padding: 1rem;
+        }
+        
+        th {
+            background-color: rgba(255, 125, 0, 0.1);
+            color: var(--accent);
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        td {
+            border-bottom: 1px solid var(--border);
+        }
+        
+        tr:hover td {
+            background-color: rgba(255, 125, 0, 0.05);
+        }
+        
+        .btn {
+            background-color: var(--accent);
+            color: #111;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        
+        .btn:hover {
+            background-color: #ff9a40;
+            transform: translateY(-2px);
+        }
+        
+        input[type="date"] {
+            padding: 0.7rem;
+            border: 1px solid var(--border);
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            color: var(--text);
+        }
+        
+        label {
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-right: 0.5rem;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--dark-bg);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .flex-row {
+                flex-direction: column;
+            }
+            
+            .date-filter {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .nav-links {
+                margin-top: 1rem;
+                display: flex;
+                justify-content: center;
+                width: 100%;
+            }
+            
+            .nav-links a {
+                margin: 0 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <h1>Canteen Analytics</h1>
+                <div class="nav-links">
+                    <a href="{% url 'dashboard' %}">Dashboard</a>
+                    <a href="{% url 'order_management' %}">Orders</a>
+                    <a href="{% url 'logout' %}">Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <form method="get" class="date-filter">
+            <div>
+                <label for="start_date">Start Date:</label>
+                <input type="date" id="start_date" name="start_date" value="{{ start_date|date:'Y-m-d' }}">
+            </div>
+            <div>
+                <label for="end_date">End Date:</label>
+                <input type="date" id="end_date" name="end_date" value="{{ end_date|date:'Y-m-d' }}">
+            </div>
+            <button type="submit" class="btn">Apply Filter</button>
+        </form>
+
+        <div class="summary-cards">
+            <div class="card">
+                <h3>Total Orders</h3>
+                <div class="card-value">{{ total_orders }}</div>
+            </div>
+            <div class="card">
+                <h3>Total Revenue</h3>
+                <div class="card-value">₹{{ total_revenue|floatformat:2 }}</div>
+            </div>
+            <div class="card">
+                <h3>Average Order Value</h3>
+                <div class="card-value">₹{{ avg_order_value|floatformat:2 }}</div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <h2>Daily Sales</h2>
+            <canvas id="salesChart" height="100"></canvas>
+        </div>
+
+        <div class="flex-row">
+            <div class="chart-container chart-card">
+                <h2>Top Selling Items</h2>
+                <canvas id="topItemsChart" height="250"></canvas>
+            </div>
+            <div class="chart-container chart-card">
+                <h2>Sales by Category</h2>
+                <canvas id="categoryChart" height="250"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <h2>Top Selling Items</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Category</th>
+                        <th>Quantity Sold</th>
+                        <th>Revenue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in top_items %}
+                    <tr>
+                        <td>{{ item.menu_item__name }}</td>
+                        <td>{{ item.menu_item__category__name }}</td>
+                        <td>{{ item.total_quantity }}</td>
+                        <td>₹{{ item.total_revenue|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+<script>
+const salesByDay = [
+            {% for day in sales_by_day %}
+                {
+                    date: "{{ day.day }}",
+                    total: {{ day.total }},
+                    count: {{ day.count }}
+                },
+            {% endfor %}
+        ];
+
+        const topItems = [
+            {% for item in top_items %}
+                {
+                    name: "{{ item.menu_item__name }}",
+                    quantity: {{ item.total_quantity }},
+                    revenue: {{ item.total_revenue }}
+                },
+            {% endfor %}
+        ].slice(0, 5); // Limit to top 5 for chart
+
+        const salesByCategory = [
+            {% for category in sales_by_category %}
+                {
+                    name: "{{ category.menu_item_category_name }}",
+                    total: {{ category.total }},
+                    count: {{ category.item_count }}
+                },
+            {% endfor %}
+        ];
+
+        // Set up charts
+        document.addEventListener('DOMContentLoaded', function() {
+            // Daily Sales Chart
+            const salesCtx = document.getElementById('salesChart').getContext('2d');
+            new Chart(salesCtx, {
+                type: 'line',
+                data: {
+                    labels: salesByDay.map(day => day.date),
+                    datasets: [{
+                        label: 'Daily Sales (₹)',
+                        data: salesByDay.map(day => day.total),
+                        backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                        borderColor: 'rgba(76, 175, 80, 1)',
+                        borderWidth: 2,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₹' + value;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Top Items Chart
+            const itemsCtx = document.getElementById('topItemsChart').getContext('2d');
+            new Chart(itemsCtx, {
+                type: 'bar',
+                data: {
+                    labels: topItems.map(item => item.name),
+                    datasets: [{
+                        label: 'Quantity Sold',
+                        data: topItems.map(item => item.quantity),
+                        backgroundColor: 'rgba(54, 162, 235, 0.7)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Category Sales Chart
+            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+            new Chart(categoryCtx, {
+                type: 'pie',
+                data: {
+                    labels: salesByCategory.map(cat => cat.name),
+                    datasets: [{
+                        data: salesByCategory.map(cat => cat.total),
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(255, 206, 86, 0.7)',
+                            'rgba(75, 192, 192, 0.7)',
+                            'rgba(153, 102, 255, 0.7)',
+                            'rgba(255, 159, 64, 0.7)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ₹${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>

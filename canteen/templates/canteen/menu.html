@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Canteen - Menu</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Base Styles & Reset */
+/* === GENERAL STYLES === */
+/* Base variables */
+:root {
+  --primary-color: #ff6600; /* Orange */
+  --primary-hover: #ff8533; /* Lighter orange */
+  --primary-glow: 0 0 15px rgba(255, 102, 0, 0.5); /* Orange glow */
+  --background-dark: #0a0a0a; /* Very dark gray, almost black */
+  --card-bg: #1a1a1a; /* Slightly lighter than background */
+  --text-light: #ffffff;
+  --text-gray: #d0d0d0; /* Lighter gray for better readability */
+  --border-color: #333333;
+  --header-height: 70px; /* Fixed header height */
+  --card-spacing: 16px; /* Consistent spacing */
+}
+
+/* Global styles */
+body {
+  font-family: 'Poppins' , 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: var(--background-dark);
+  color: var(--text-light);
+  line-height: 1.6;
+  letter-spacing: 0.015em;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Header styles - keeping consistent with existing style */
+header {
+  background-color: #000000;
+  color: var(--text-light);
+  padding: 15px 0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: var(--header-height);
+}
+
+.logo a {
+  color: var(--primary-color);
+  font-size: 28px;
+  font-weight: 700;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  text-shadow: var(--primary-glow);
+  transition: all 0.3s ease;
+}
+
+.logo a:hover {
+  color: var(--primary-hover);
+  text-shadow: 0 0 20px rgba(255, 102, 0, 0.8);
+}
+
+nav ul {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+nav li {
+  margin-left: 25px;
+}
+
+nav a {
+  color: var(--text-light);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 8px 15px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  font-size: 16px;
+}
+
+nav a:hover {
+  color: var(--primary-color);
+  background-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 5px rgba(255, 102, 0, 0.3);
+}
+
+.cart-count {
+  background-color: var(--primary-color);
+  color: var(--text-light);
+  border-radius: 50%;
+  padding: 3px 8px;
+  font-size: 13px;
+  margin-left: 6px;
+  box-shadow: var(--primary-glow);
+  font-weight: 700;
+}
+
+/* Menu page layout */
+.menu-container {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  margin: 30px auto 50px;
+  max-width: 1200px;
+  padding: 0 20px;
+}
+
+/* Category tabs - NEW */
+.category-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.category-tab {
+  background-color: var(--card-bg);
+  color: var(--text-gray);
+  padding: 12px 20px;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.category-tab:hover {
+  transform: translateY(-3px);
+  background-color: rgba(255, 102, 0, 0.1);
+  color: var(--text-light);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.category-tab.active {
+  background-color: var(--primary-color);
+  color: var(--text-light);
+  border-color: var(--primary-color);
+  box-shadow: var(--primary-glow);
+}
+
+/* Menu search - NEW */
+.menu-search {
+  position: relative;
+  max-width: 600px;
+  margin: 0 auto 20px;
+}
+
+.menu-search input {
+  width: 100%;
+  padding: 15px 20px 15px 50px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 50px;
+  color: var(--text-light);
+  font-size: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.menu-search input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 15px rgba(255, 102, 0, 0.3);
+}
+
+.menu-search i {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--primary-color);
+  font-size: 18px;
+}
+
+/* Menu items grid */
+.menu-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 25px;
+}
+
+.menu-item {
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  border: 1px solid #333;
+}
+
+.menu-item:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 102, 0, 0.2);
+}
+
+.item-badge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background-color: var(--primary-color);
+  color: white;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 2;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.5px;
+}
+
+.item-image {
+  height: 180px;
+  overflow: hidden;
+  position: relative;
+}
+
+.item-image::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50px;
+  background: linear-gradient(to top, rgba(26, 26, 26, 1), transparent);
+}
+
+.item-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.menu-item:hover .item-image img {
+  transform: scale(1.1);
+}
+
+.item-info {
+  padding: 20px;
+}
+
+.item-title {
+  margin: 0 0 12px;
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--text-light);
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+}
+
+.item-meta {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+  font-size: 14px;
+  color: var(--text-gray);
+}
+
+.item-rating {
+  color: #ffc107; /* Gold for star rating */
+}
+
+.item-rating i {
+  margin-right: 4px;
+}
+
+.item-time i {
+  margin-right: 4px;
+  color: var(--text-gray);
+}
+
+.item-price {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 12px;
+  text-shadow: 0 0 5px rgba(255, 102, 0, 0.3);
+}
+
+.original-price {
+  text-decoration: line-through;
+  color: var(--text-gray);
+  font-size: 16px;
+  font-weight: 400;
+  margin-left: 8px;
+}
+
+.item-description {
+  color: var(--text-gray);
+  font-size: 14px;
+  margin-bottom: 20px;
+  line-height: 1.5;
+  height: 42px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.item-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Quantity selector - NEW */
+.quantity-selector {
+  display: flex;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 15px;
+  border: 1px solid var(--border-color);
+}
+
+.quantity-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 102, 0, 0.2);
+  color: var(--primary-color);
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s ease;
+}
+
+.quantity-btn:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.quantity-input {
+  width: 40px;
+  height: 36px;
+  text-align: center;
+  border: none;
+  background-color: transparent;
+  color: var(--text-light);
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.quantity-input::-webkit-inner-spin-button, 
+.quantity-input::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+
+.add-to-cart {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.5px;
+  font-size: 15px;
+  box-shadow: 0 4px 10px rgba(255, 102, 0, 0.3);
+}
+
+.add-to-cart:hover {
+  background-color: var(--primary-hover);
+  box-shadow: var(--primary-glow);
+  transform: translateY(-3px);
+}
+
+.favorite-btn {
+  background-color: transparent;
+  color: var(--text-gray);
+  border: 1px solid var(--border-color);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.favorite-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ff4d4d;
+  border-color: #ff4d4d;
+  transform: scale(1.1);
+}
+
+.favorite-btn.active {
+  background-color: rgba(255, 77, 77, 0.1);
+  color: #ff4d4d;
+  border-color: #ff4d4d;
+}
+
+/* Empty state */
+.empty-state {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  padding: 50px 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  text-align: center;
+}
+
+.empty-state i {
+  font-size: 60px;
+  color: var(--primary-color);
+  margin-bottom: 20px;
+  opacity: 0.7;
+}
+
+.empty-state h3 {
+  font-size: 24px;
+  color: var(--text-light);
+  margin-bottom: 15px;
+  font-weight: 700;
+}
+
+.empty-state p {
+  color: var(--text-gray);
+  font-size: 16px;
+  max-width: 400px;
+}
+
+/* Toast notification - NEW */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color: var(--card-bg);
+  border-left: 4px solid var(--primary-color);
+  padding: 16px 20px;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 1000;
+  animation: slideIn 0.3s forwards, fadeOut 0.3s 2.7s forwards;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.toast i {
+  color: var(--primary-color);
+  font-size: 20px;
+}
+
+.toast-content {
+  flex: 1;
+}
+
+.toast-title {
+  font-weight: 600;
+  margin-bottom: 2px;
+  color: var(--text-light);
+}
+
+.toast-message {
+  font-size: 14px;
+  color: var(--text-gray);
+}
+
+.toast-close {
+  color: var(--text-gray);
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0;
+  height: 24px;
+  width: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.toast-close:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-light);
+}
+
+/* Category pills - NEW */
+.category-pill {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-right: 5px;
+  background-color: rgba(255, 102, 0, 0.15);
+  color: var(--primary-color);
+  margin-bottom: 10px;
+}
+
+/* Decorative elements */
+.doodle {
+  position: fixed;
+  opacity: 0.05;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.doodle-1 {
+  top: 10%;
+  left: 5%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, var(--primary-color) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.doodle-2 {
+  bottom: 10%;
+  right: 5%;
+  width: 250px;
+  height: 250px;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--primary-color),
+    var(--primary-color) 2px,
+    transparent 2px,
+    transparent 10px
+  );
+}
+
+.food-icon {
+  position: fixed;
+  color: var(--primary-color);
+  opacity: 0.05;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.icon-1 {
+  top: 20%;
+  right: 10%;
+  font-size: 6em;
+  transform: rotate(15deg);
+}
+
+.icon-2 {
+  bottom: 15%;
+  left: 8%;
+  font-size: 5em;
+  transform: rotate(-10deg);
+}
+
+.icon-3 {
+  top: 40%;
+  left: 15%;
+  font-size: 4em;
+}
+
+.icon-4 {
+  bottom: 30%;
+  right: 15%;
+  font-size: 5em;
+  transform: rotate(20deg);
+}
+
+/* Responsive styles */
+@media (max-width: 900px) {
+  .menu-items {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+  
+  .category-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    justify-content: flex-start;
+  }
+  
+  .category-tab {
+    flex: 0 0 auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .header-content {
+    flex-direction: column;
+    height: auto;
+    padding: 10px 0;
+  }
+  
+  nav ul {
+    margin-top: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  nav li {
+    margin: 5px;
+  }
+  
+  .menu-items {
+    grid-template-columns: 1fr;
+  }
+  
+  .item-image {
+    height: 200px;
+  }
+  
+  .toast {
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+  }
+}
+
+/* Focus states for accessibility */
+a:focus, button:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  :root {
+    --primary-color: #ff8800;
+    --text-gray: #ffffff;
+  }
+  
+  .menu-item {
+    border: 2px solid #fff;
+  }
+  
+  .category-list a, .item-description {
+    color: white;
+  }
+}
+
+    .birthday-message {
+        text-align: center;
+        padding: 20px;
+        margin: 20px auto;
+        background-color: #000000;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(255, 140, 0, 0.5);
+        max-width: 500px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .birthday-glow {
+        color: #ff8c00;
+        font-size: 1.5em;
+        text-shadow: 0 0 10px rgba(255, 140, 0, 0.8),
+                     0 0 20px rgba(255, 140, 0, 0.5),
+                     0 0 30px rgba(255, 140, 0, 0.3);
+        animation: pulse 2s infinite;
+    }
+    
+    .birthday-confetti {
+        position: absolute;
+        top: 0;
+        width: 50px;
+        height: 100%;
+    }
+    
+    .birthday-confetti.left {
+        left: 10px;
+        background: radial-gradient(circle, transparent 60%, rgba(255, 140, 0, 0.2) 70%);
+    }
+    
+    .birthday-confetti.right {
+        right: 10px;
+        background: radial-gradient(circle, transparent 60%, rgba(255, 140, 0, 0.2) 70%);
+    }
+    
+    @keyframes pulse {
+        0% { opacity: 0.8; }
+        50% { opacity: 1; }
+        100% { opacity: 0.8; }
+    }
+
+/* === FONT IMPORTS === */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Montserrat:wght@600;700&display=swap');
+    </style>
+</head>
+<body class="{% if user.is_authenticated %}logged-in{% endif %}">
+  
+    <!-- Decorative elements -->
+    <div class="doodle doodle-1"></div>
+    <div class="doodle doodle-2"></div>
+    <i class="fas fa-pizza-slice food-icon icon-1"></i>
+    <i class="fas fa-hamburger food-icon icon-2"></i>
+    <i class="fas fa-coffee food-icon icon-3"></i>
+    <i class="fas fa-ice-cream food-icon icon-4"></i>
+    
+    <header id="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <a href="{% url 'home' %}"><i class="fas fa-utensils"></i> Campus Canteen</a>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a></li>
+                        <li><a href="{% url 'menu' %}"><i class="fas fa-clipboard-list"></i> Menu</a></li>
+                        <li><a href="{% url 'view_cart' %}"><i class="fas fa-shopping-cart"></i> Cart <span class="cart-count" id="cartCount">{{ request.user.cart.item_count|default:0 }}</span></a></li>
+                        {% if user.is_authenticated %}
+                            <li><a href="{% url 'order_history' %}"><i class="fas fa-history"></i> Orders</a></li>
+                            {% if user.user_type in 'staff,owner' %}
+                                <li><a href="{% url 'dashboard' %}"><i class="fas fa-chart-bar"></i> Dashboard</a></li>
+                            {% endif %}
+                            <li><a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                        {% else %}
+                            <li><a href="{% url 'login' %}"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+                            <li><a href="{% url 'register' %}"><i class="fas fa-user-plus"></i> Register</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+    {% if birthday_message %}
+    <div class="birthday-message">
+        <div class="message-text">
+            <strong>{{ birthday_message }}</strong>
+        </div>
+        <div class="birthday-border"></div>
+    </div>
+    <style>
+        .birthday-message {
+            text-align: center;
+            padding: 25px;
+            margin: 20px auto;
+            background-color: #111;
+            border-radius: 12px;
+            box-shadow: 0 0 18px rgba(255, 140, 0, 0.4);
+            max-width: 500px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .message-text {
+            color: #ff8c00;
+            font-size: 1.2em;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .birthday-border {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 2px solid #ff8c00;
+            border-radius: 10px;
+            animation: borderPulse 4s infinite ease-in-out;
+            opacity: 0.6;
+            z-index: 1;
+        }
+        
+        @keyframes borderPulse {
+            0% { transform: scale(0.98); opacity: 0.4; }
+            50% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(0.98); opacity: 0.4; }
+        }
+        
+        @media (max-width: 600px) {
+            .birthday-message {
+                max-width: 90%;
+                padding: 20px;
+            }
+        }
+    </style>
+    {% endif %}
+
+    
+    <div class="menu-container">
+        <!-- Search bar -->
+        <div class="menu-search">
+            <i class="fas fa-search"></i>
+            <input type="text" id="menuSearch" placeholder="Search for dishes, categories...">
+        </div>
+        
+        <!-- Categories as horizontal tabs -->
+        <div class="category-tabs">
+            <a href="{% url 'menu' %}" class="category-tab {% if not selected_category %}active{% endif %}">
+                <i class="fas fa-utensils"></i> All Items
+            </a>
+            {% for category in categories %}
+                <a href="{% url 'menu' %}?category={{ category.id }}" 
+                   class="category-tab {% if selected_category == category.id|stringformat:'s' %}active{% endif %}">
+                    <i class="fas {% if category.name == 'Breakfast' %}fa-egg{% elif category.name == 'Lunch' %}fa-hamburger{% elif category.name == 'Dinner' %}fa-drumstick-bite{% elif category.name == 'Snacks' %}fa-cookie{% elif category.name == 'Beverages' %}fa-coffee{% else %}fa-utensils{% endif %}"></i>
+                    {{ category.name }}
+                </a>
+            {% endfor %}
+            <a href="{% url 'favorites' %}" class="category-tab {% if is_favorites_page %}active{% endif %}">
+              <i class="fas fa-heart"></i> Favorites
+          </a>
+        </div>
+        
+        <!-- Menu items grid -->
+        <div class="menu-items">
+            {% for item in menu_items %}
+                <div class="menu-item" data-name="{{ item.name|lower }}" data-category="{{ item.category.name|lower }}"  data-id="{{ item.id }}">
+                    {% if item.is_bestseller %}<div class="item-badge">Bestseller</div>{% endif %}
+                    <div class="item-image">
+                        {% if item.image %}
+                            <img src="{{ item.image.url }}" alt="{{ item.name }}">
+                        {% else %}
+                            <img src="/api/placeholder/400/320" alt="No Image">
+                        {% endif %}
+                    </div>
+                    <div class="item-info">
+                        <h3 class="item-title">{{ item.name }}</h3>
+                        <div class="category-pill">{{ item.category.name}} - {{ item.prep_time|default:"10-15" }} mins</div>
+                        <!-- <div class="item-meta">
+                             <div class="item-rating">
+                                <i class="fas fa-star"></i> {{ item.avg_rating|default:"4.5" }}
+                            </div> -->
+                            <!-- <div class="item-time">
+                                <i class="far fa-clock"></i> {{ item.prep_time|default:"10-15" }} min
+                            </div> 
+                        </div> -->
+                        <div class="item-price">
+                            ₹{{ item.price }}
+                            {% if item.has_discount %}<span class="original-price">₹{{ item.original_price }}</span>{% endif %}
+                        </div>
+                        <!-- <p class="item-description">{{ item.description|default:"No description available." }}</p> -->
+                        <div class="quantity-selector">
+                            <button type="button" class="quantity-btn decrease-btn">-</button>
+                            <input type="number" name="quantity" class="quantity-input" value="1" min="1" max="10">
+                            <button type="button" class="quantity-btn increase-btn">+</button>
+                            
+                        </div>
+                        <div class="item-actions">
+                            <form action="{% url 'add_to_cart' item.id %}" method="post" class="add-to-cart-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="quantity" value="1" class="form-quantity">
+                                <button type="submit" class="add-to-cart"><i class="fas fa-cart-plus"></i> Add to Cart</button>
+                            </form>
+                            <button class="favorite-btn"><i class="far fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="empty-state">
+                    <i class="fas fa-utensils"></i>
+                    <h3>No Menu Items Found</h3>
+                    <p>There are no items available in this category at the moment.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+    // Sticky header code (unchanged)
+    window.addEventListener('scroll', function() {
+        const header = document.getElementById('header');
+        if (window.scrollY > 100) {
+            header.classList.add('header-scrolled');
+        } else {
+            header.classList.remove('header-scrolled');
+        }
+
+        // Favorite buttons
+    const favoriteButtons = document.querySelectorAll('.favorite-btn');
+            
+            favoriteButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const icon = this.querySelector('i');
+                    if (icon.classList.contains('far')) {
+                        icon.classList.remove('far');
+                        icon.classList.add('fas');
+                        icon.style.color = '#e91e63';
+                    } else {
+                        icon.classList.remove('fas');
+                        icon.classList.add('far');
+                        icon.style.color = '#666';
+                    }
+                    
+                    // In a real app, you would send an AJAX request to toggle favorite status
+                });
+            });
+    });
+    
+    // Find all quantity selectors on the page
+    const quantitySelectors = document.querySelectorAll('.quantity-selector');
+    
+    quantitySelectors.forEach(selector => {
+        const decreaseBtn = selector.querySelector('.decrease-btn');
+        const increaseBtn = selector.querySelector('.increase-btn');
+        const quantityInput = selector.querySelector('.quantity-input');
+        
+        // Find the associated form - change this to look at parent div then find the form
+        const parentDiv = selector.parentElement;
+        const formElement = parentDiv ? parentDiv.querySelector('.add-to-cart-form') : null;
+        const hiddenInput = formElement ? formElement.querySelector('.form-quantity') : null;
+        
+        // Decrease button functionality
+        decreaseBtn.addEventListener('click', function() {
+            let currentValue = parseInt(quantityInput.value);
+            if (currentValue > 1) {
+                currentValue--;
+                quantityInput.value = currentValue;
+                
+                // Update the hidden input that gets submitted
+                if (hiddenInput) {
+                    hiddenInput.value = currentValue;
+                    console.log('Hidden input updated to:', currentValue);
+                }
+            }
+        });
+        
+        // Increase button functionality
+        increaseBtn.addEventListener('click', function() {
+            let currentValue = parseInt(quantityInput.value);
+            if (currentValue < parseInt(quantityInput.getAttribute('max'))) {
+                currentValue++;
+                quantityInput.value = currentValue;
+                
+                // Update the hidden input that gets submitted
+                if (hiddenInput) {
+                    hiddenInput.value = currentValue;
+                    console.log('Hidden input updated to:', currentValue);
+                }
+            }
+        });
+        
+        // Also update when directly changing the input
+        quantityInput.addEventListener('change', function() {
+            let currentValue = parseInt(quantityInput.value);
+            const min = parseInt(quantityInput.getAttribute('min'));
+            const max = parseInt(quantityInput.getAttribute('max'));
+            
+            // Ensure the value is within bounds
+            if (isNaN(currentValue) || currentValue < min) {
+                currentValue = min;
+            } else if (currentValue > max) {
+                currentValue = max;
+            }
+            
+            quantityInput.value = currentValue;
+            
+            // Update the hidden input that gets submitted
+            if (hiddenInput) {
+                hiddenInput.value = currentValue;
+                console.log('Hidden input updated to:', currentValue);
+            }
+        });
+    });
+    
+    // AJAX for adding to cart
+    const forms = document.querySelectorAll('.add-to-cart-form');
+    
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const url = this.action;
+            const csrfToken = this.querySelector('input[name="csrfmiddlewaretoken"]').value;
+            const quantity = this.querySelector('input[name="quantity"]').value;
+            
+            // Double-check the quantity value before submitting
+            console.log('Submitting with quantity:', quantity);
+            
+            fetch(url, {
+    method: 'POST',
+    headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRFToken': csrfToken,
+        'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: `quantity=${quantity}`
+})
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Create toast notification
+                    const toast = document.createElement('div');
+                    toast.className = 'toast';
+                    toast.innerHTML = `
+                        <i class="fas fa-check-circle"></i>
+                        <div class="toast-content">
+                            <div class="toast-title">Added to Cart</div>
+                            <div class="toast-message">${data.message}</div>
+                        </div>
+                        <button class="toast-close"><i class="fas fa-times"></i></button>
+                    `;
+                    
+                    document.body.appendChild(toast);
+                    
+                    // Update cart count
+                    document.getElementById('cartCount').textContent = data.cart_count;
+                    
+                    // Add animation
+                    const btn = this.querySelector('.add-to-cart');
+                    btn.innerHTML = '<i class="fas fa-check"></i> Added!';
+                    setTimeout(() => {
+                        btn.innerHTML = '<i class="fas fa-cart-plus"></i> Add to Cart';
+                    }, 2000);
+                } else if (data.status === 'error') {
+                    alert(data.message);
+                }
+            });
+        });
+    });
+});
+    
+   
+    // Add this JavaScript to menu.html at the end of your existing script tag
+// For handling favorites
+document.addEventListener('DOMContentLoaded', function() {
+    // Get favorite status for all items
+    const updateFavoriteIcons = function() {
+        // Only run if user is logged in
+        if (!document.body.classList.contains('logged-in')) return;
+        
+        // Get all menu items on the page
+        const menuItems = document.querySelectorAll('.menu-item');
+        
+        // Create array of item IDs
+        const itemIds = Array.from(menuItems).map(item => item.dataset.id);
+        
+        // If no items, don't make request
+        if (itemIds.length === 0) return;
+        
+        // Fetch favorite status
+        fetch('/api/favorite-status/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({ item_ids: itemIds })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update favorite icons
+                data.favorites.forEach(itemId => {
+                    const menuItem = document.querySelector(`.menu-item[data-id="${itemId}"]`);
+                    if (menuItem) {
+                        const icon = menuItem.querySelector('.favorite-btn i');
+                        icon.classList.remove('far');
+                        icon.classList.add('fas');
+                        icon.style.color = '#e91e63';
+                    }
+                });
+            }
+        });
+    };
+
+    // Call on page load
+    updateFavoriteIcons();
+    
+    // Update favorite button click handler
+    const favoriteButtons = document.querySelectorAll('.favorite-btn');
+    
+    favoriteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Only proceed if user is logged in
+            if (!document.body.classList.contains('logged-in')) {
+                window.location.href = '/login/';
+                return;
+            }
+            
+            const menuItem = this.closest('.menu-item');
+            const itemId = menuItem.dataset.id;
+            const icon = this.querySelector('i');
+            
+            // Send toggle favorite request
+            fetch(`/toggle-favorite/${itemId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Update icon appearance
+                    if (data.is_favorite) {
+                        icon.classList.remove('far');
+                        icon.classList.add('fas');
+                        icon.style.color = '#e91e63';
+                    } else {
+                        icon.classList.remove('fas');
+                        icon.classList.add('far');
+                        icon.style.color = '#666';
+                    }
+                }
+            });
+        });
+    });
+});
+// Add this to your existing JavaScript code inside the DOMContentLoaded event listener
+const searchInput = document.getElementById('menuSearch');
+
+if (searchInput) {
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase().trim();
+        const menuItems = document.querySelectorAll('.menu-item');
+        
+        menuItems.forEach(item => {
+            const itemName = item.dataset.name || '';
+            const itemCategory = item.dataset.category || '';
+            const itemTitle = item.querySelector('.item-title')?.textContent.toLowerCase() || '';
+            
+            // Check if the search term matches the item name, category, or title
+            const matches = 
+                itemName.includes(searchTerm) || 
+                itemCategory.includes(searchTerm) || 
+                itemTitle.includes(searchTerm);
+            
+            // Show or hide based on match
+            if (matches) {
+                item.style.display = 'flex';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        
+        // Show a "no results" message if all items are hidden
+        const allHidden = Array.from(menuItems).every(item => item.style.display === 'none');
+        let noResultsEl = document.querySelector('.no-search-results');
+        
+        if (allHidden && searchTerm !== '') {
+            if (!noResultsEl) {
+                noResultsEl = document.createElement('div');
+                noResultsEl.className = 'no-search-results empty-state';
+                noResultsEl.innerHTML = `
+                    <i class="fas fa-search"></i>
+                    <h3>No Results Found</h3>
+                    <p>No items match your search for "${searchTerm}"</p>
+                `;
+                document.querySelector('.menu-items').appendChild(noResultsEl);
+            } else {
+                noResultsEl.querySelector('p').textContent = `No items match your search for "${searchTerm}"`;
+                noResultsEl.style.display = 'flex';
+            }
+        } else if (noResultsEl) {
+            noResultsEl.style.display = 'none';
+        }
+    });
+}
+    </script>
+</body>
+</html>

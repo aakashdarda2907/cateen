@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ff6600;
+            --primary-dark: #e65c00;
+            --primary-light: rgba(255, 102, 0, 0.1);
+            --bg: #0a0a0a;
+            --card: #141414;
+            --card-hover: #1c1c1c;
+            --border: #2a2a2a;
+            --text: #ffffff;
+            --text-dim: #b0b0b0;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.4;
+            padding-bottom: 20px;
+        }
+
+        /* Navbar */
+        .navbar {
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            height: 48px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+
+        .navbar a {
+            color: var(--text);
+            text-decoration: none;
+            padding: 0 12px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            height: 100%;
+            transition: color 0.2s;
+        }
+
+        .navbar a:hover {
+            color: var(--primary);
+        }
+
+        /* Container */
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: var(--card);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        /* Order details */
+        .order-details {
+            margin-bottom: 30px;
+        }
+
+        .order-details h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+        }
+
+        .order-details h2::before {
+            content: "";
+            display: inline-block;
+            width: 3px;
+            height: 16px;
+            background-color: var(--primary);
+            margin-right: 8px;
+            border-radius: 2px;
+        }
+
+        .order-details p {
+            margin-bottom: 8px;
+            color: var(--text-dim);
+        }
+
+        .order-details strong {
+            color: var(--text);
+        }
+
+        /* Status badges */
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        .status-pending { 
+            background-color: rgba(255, 193, 7, 0.2); 
+            color: #ffc107; 
+        }
+        
+        .status-preparing { 
+            background-color: rgba(33, 150, 243, 0.2); 
+            color: #2196f3; 
+        }
+        
+        .status-ready { 
+            background-color: rgba(76, 175, 80, 0.2); 
+            color: #4caf50; 
+        }
+        
+        .status-completed { 
+            background-color: rgba(76, 175, 80, 0.2); 
+            color: #4caf50; 
+        }
+        
+        .status-cancelled { 
+            background-color: rgba(244, 67, 54, 0.2); 
+            color: #f44336; 
+        }
+
+        /* Order items table */
+        h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+        }
+
+        h3::before {
+            content: "";
+            display: inline-block;
+            width: 3px;
+            height: 16px;
+            background-color: var(--primary);
+            margin-right: 8px;
+            border-radius: 2px;
+        }
+
+        .order-items {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .order-items th {
+            background-color: #0f0f0f;
+            color: var(--text-dim);
+            text-align: left;
+            padding: 10px 12px;
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        .order-items td {
+            padding: 10px 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .order-items tr:hover td {
+            background-color: var(--card-hover);
+        }
+
+        /* Order total */
+        .order-total {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 12px;
+            background-color: #181818;
+            color: var(--primary);
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        /* Button */
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 600;
+            transition: background-color 0.2s, transform 0.2s;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        /* Responsive tweaks */
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .order-items th:nth-child(2), 
+            .order-items td:nth-child(2) {
+                display: none;
+            }
+        } nav ul {
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  
+  nav li {
+    margin: 5px 10px;
+  }
+   
+  .header-content {
+    flex-direction: column;
+    height: auto;
+  }
+  
+  nav ul {
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  
+  nav li {
+    margin: 5px 10px;
+  }
+  
+  h1 {
+    font-size: 30px;
+  }
+  
+  .checkout-btn, .continue-shopping {
+    padding: 14px;
+    font-size: 16px;
+  }
+
+  
+nav ul {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+nav li {
+  margin-left: 25px; /* Increased spacing */
+}
+
+nav a {
+  color: var(--text-light);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 8px 15px; /* Larger clickable area */
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  font-size: 16px; /* Consistent font size */
+}
+
+nav a:hover {
+  color: var(--primary-color);
+  background-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 5px rgba(255, 102, 0, 0.3);
+}
+header {
+  background-color: #000000;
+  color: var(--text-light);
+ 
+  padding: 15px 0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  position: sticky; /* Make header sticky */
+  top: 0;
+  z-index: 100;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: var(--header-height);
+}
+
+.logo a {
+  color: var(--primary);
+  font-size: 28px; /* Slightly larger */
+  font-weight: 700;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 1.5px; /* Increased letter spacing */
+  text-shadow: var(--primary-glow);
+  transition: all 0.3s ease;
+}
+
+.cart-count {
+    background-color: var(--primary);
+    color: var(--text-light);
+    border-radius: 50%;
+    padding: 3px 8px;
+    font-size: 13px;
+    margin-left: 1px;
+    box-shadow: var(--primary-glow);
+    font-weight: 700;
+}
+.logo a:hover {
+  color: var(--primary-hover);
+  text-shadow: 0 0 20px rgba(255, 102, 0, 0.8);
+}
+/* High contrast mode for accessibility */
+@media (prefers-contrast: high) {
+  :root {
+    --primary-color: #ff8800; /* Brighter orange */
+    --text-gray: #ffffff; /* All text white */
+  }
+  
+  .cart-item {
+    border-bottom: 2px solid #555;
+  }
+  
+  .item-name, .summary-title {
+    text-shadow: 1px 1px 0 #000;
+  }
+}
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <a href="{% url 'home' %}">Campus Canteen</a>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="{% url 'home' %}">Home</a></li>
+                        <li><a href="{% url 'menu' %}">Menu</a></li>
+                        <li><a href="{% url 'view_cart' %}">Cart <span class="cart-count">{{ request.user.cart.item_count|default:0 }}</span></a></li>
+                        {% if user.is_authenticated %}
+                            <li><a href="{% url 'order_history' %}">Orders</a></li>
+                            {% if user.user_type in 'staff,owner' %}
+                                <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                            {% endif %}
+                            <li><a href="{% url 'logout' %}">Logout</a></li>
+                        {% else %}
+                            <li><a href="{% url 'login' %}">Login</a></li>
+                            <li><a href="{% url 'register' %}">Register</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+    <div class="container">
+        <div class="header">
+            <h1>Order Confirmation</h1>
+            <p>Thank you for your order!</p>
+        </div>
+
+        <div class="order-details">
+            <h2>Order #{{ order.id }}</h2>
+            <p><strong>Date:</strong> {{ order.order_date }}</p>
+            <p><strong>Status:</strong> <span class="status status-{{ order.status }}">{{ order.get_status_display }}</span></p>
+            <p><strong>Transaction ID:</strong> {{ order.upi_transaction_id }}</p>
+            {% if order.notes %}
+                <p><strong>Notes:</strong> {{ order.notes }}</p>
+            {% endif %}
+        </div>
+
+        <h3>Order Items</h3>
+        <table class="order-items">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order_items %}
+                <tr>
+                    <td>{{ item.menu_item.name }}</td>
+                    <td>₹{{ item.price }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>₹{{ item.subtotal }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="order-total">
+            Total: ₹{{ order.total_amount }}
+        </div>
+
+        <a href="{% url 'order_history' %}" class="btn">View All Orders</a>
+    </div>
+
+    <script>
+        // Add any JavaScript functionality here
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Order confirmation page loaded');
+            
+            // Example of status color update
+            const statusElements = document.querySelectorAll('.status');
+            statusElements.forEach(function(element) {
+                if (element.classList.contains('status-completed')) {
+                    element.style.fontWeight = 'bold';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

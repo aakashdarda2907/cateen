@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Canteen Ordering</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .menu-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        h1 {
+            margin-bottom: 10px;
+        }
+        
+        .tagline {
+            font-style: italic;
+            font-size: 14px;
+        }
+        
+        .cart-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .cart-count {
+            background-color: #ff5722;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: -8px;
+            right: -8px;
+        }
+        
+        .menu-nav {
+            background-color: #eee;
+            padding: 10px 20px;
+            display: flex;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        
+        .menu-nav a {
+            padding: 8px 15px;
+            text-decoration: none;
+            color: #333;
+            margin-right: 10px;
+            border-radius: 20px;
+            transition: background-color 0.3s;
+        }
+        
+        .menu-nav a:hover, .menu-nav a.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .menu-section {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .section-title {
+            color: #4CAF50;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #4CAF50;
+            display: inline-block;
+            scroll-margin-top: 100px;
+        }
+        
+        .menu-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .menu-item {
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+        
+        .menu-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .item-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+            font-size: 16px;
+        }
+        
+        .item-price {
+            font-weight: bold;
+            color: #4CAF50;
+            margin-bottom: 10px;
+        }
+        
+        .item-description {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .special-tag {
+            display: inline-block;
+            background-color: #ff9800;
+            color: white;
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 5px;
+        }
+        
+        .veg-tag {
+            background-color: #4CAF50;
+        }
+        
+        .add-to-cart {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .add-to-cart:hover {
+            background-color: #388E3C;
+        }
+        
+        .item-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .quantity-control {
+            display: flex;
+            align-items: center;
+        }
+        
+        .quantity-btn {
+            width: 28px;
+            height: 28px;
+            background-color: #eee;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .quantity-input {
+            width: 40px;
+            height: 28px;
+            text-align: center;
+            border: 1px solid #ddd;
+            margin: 0 5px;
+        }
+        
+        .cart-container {
+            position: fixed;
+            top: 0;
+            right: -350px;
+            width: 350px;
+            height: 100%;
+            background-color: white;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+            transition: right 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        .cart-container.active {
+            right: 0;
+        }
+        
+        .cart-header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .close-cart {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        
+        .cart-items {
+            padding: 15px;
+        }
+        
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .cart-item-info {
+            flex: 1;
+        }
+        
+        .cart-item-name {
+            font-weight: bold;
+        }
+        
+        .cart-item-price {
+            color: #4CAF50;
+            font-size: 14px;
+        }
+        
+        .remove-item {
+            color: #ff5722;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        
+        .cart-total {
+            padding: 15px;
+            border-top: 2px solid #eee;
+            text-align: right;
+            font-weight: bold;
+        }
+        
+        .checkout-btn {
+            display: block;
+            width: 90%;
+            margin: 15px auto;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .checkout-btn:hover {
+            background-color: #388E3C;
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 999;
+        }
+        
+        .overlay.active {
+            display: block;
+        }
+        
+        footer {
+            padding: 15px;
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        @media (max-width: 768px) {
+            .menu-items {
+                grid-template-columns: 1fr;
+            }
+            
+            .cart-container {
+                width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay" id="overlay"></div>
+    
+    <div class="cart-container" id="cart-container">
+        <div class="cart-header">
+            <h3>Your Order</h3>
+            <button class="close-cart" id="close-cart">×</button>
+        </div>
+        <div class="cart-items" id="cart-items">
+            <!-- Cart items will be added here dynamically -->
+        </div>
+        <div class="cart-total">
+            Total: $<span id="cart-total-amount">0.00</span>
+        </div>
+        <button class="checkout-btn" id="checkout-btn">Proceed to Checkout</button>
+    </div>
+    
+    <div class="menu-container">
+        <header>
+            <h1>Campus Canteen</h1>
+            <p class="tagline">Order Online for Pickup or Delivery</p>
+            <div class="cart-icon" id="cart-icon">
+                🛒 <span class="cart-count" id="cart-count">0</span>
+            </div>
+        </header>
+        
+        <div class="menu-nav">
+            <a href="#breakfast" class="active">Breakfast</a>
+            <a href="#lunch">Lunch</a>
+            <a href="#beverages">Beverages</a>
+            <a href="#snacks">Snacks</a>
+        </div>
+        
+        <div class="menu-section" id="breakfast">
+            <h2 class="section-title">Breakfast</h2>
+            <div class="menu-items">
+                <div class="menu-item" data-id="1" data-name="Classic Pancakes" data-price="5.99">
+                    <div class="item-name">Classic Pancakes</div>
+                    <div class="item-description">Fluffy pancakes served with maple syrup and butter</div>
+                    <div class="item-price">$5.99 <span class="special-tag veg-tag">Veg</span></div>
+                    <div class="item-controls">
+                        <div class="quantity-control">
+                            <button class="quantity-btn decrease">-</button>
+                            <input type="number" class="quantity-input" value="1" min="1" max="10">
+                            <button class="quantity-btn increase">+</button>
+                        </div>
+                        <button class="add-to-cart">Add to Cart</button>
+                    </div>
+                </div>
+                
+                <div class="menu-item" data-id="2" data-name="Egg & Cheese Sandwich" data-price="4.50">
+                    <div class="item-name">Egg & Cheese Sandwich</div>
+                    <div class="item-description">Freshly toasted bread with scrambled eggs and cheese</div>
+                    <div class="item-price">$4.50</div>
+                    <div class="item-controls">
+                        <div class="quantity-control">
+                            <button class="quantity-btn decrease">-</button>
+                            <input type="number" class="quantity-input" value="1" min="1" max="10">
+                            <button class="quantity-btn increase">+</button>
+                        </div>
+                        <button class="add-to-cart">Add to Cart</button>
+                    </div>
+                </div>
+                
+                <div class="menu-item" data-id="3" data-name="Oatmeal Bowl" data-price="3.99">
+                    <div class="item-name">Oatmeal Bowl</div>
+                    <div class="item-description">Steel-cut oats with fresh fruits and honey</div>
+                    <div class="item-price">$3.99 <span class="special-tag veg-tag">Veg</span></div>
+                    <div class="item-controls">
+                        <div class="quantity-control">
+                            <button class="quantity-btn decrease">-</button>
+                            <input type="number" class="quantity-input" value="1" min="1" max="10">
+                            <button class="quantity-btn increase">+</button>
+                        </div>
+                        <button class="add-to-cart">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="menu-section" id="lunch">
+            <h2 class="section-title">Lunch</h2>
+            <div class="menu-items">
+                <div class="menu-item" data-id="4" data-name="Grilled Chicken Sandwich" data-price="6.99">
+                    <div class="item-name">Grilled Chicken Sandwich</div>
+                    <div class="item-description">Grilled chicken breast with lettuce, tomato, and mayo</div>
+                    <div class="item-price">$6.99</div>
+                    <div class="item-controls">
+                        <div class="quantity-control">
+                            <button class="quantity-btn decrease">-</button>
+                            <input type="number" class="quantity-input" value="1" min="1" max="10">
+                            <button class="quantity-btn increase">+</button>
+                        </div>
+                        <button class="add-to-cart">Add to Cart</button>
+                    </div>
+                </div>
+                
+                <div class="menu-item" data-id="5" data-name="Vegetable Pasta" data-price="5.99">
+                    <div class="item-name">Vegetable Pasta</div>
+                    <div class="item-description">Penne pasta with mixed vegetables and tomato sauce</div>
+                    <div class="item-price">$5.99 <span class="special-tag veg-tag">Veg</span></div>
+                    <div class="item-controls">
+                        <div class="quantity-control">
+                            <button class="quantity-btn decrease">-</button>
+                            <input type="number" class="quantity-input" value="1" min="1" max="10">
+                            <button class="quantity-btn increase">+</button>
+                        </div>
+                        <button class="add-to-cart">Add to Cart</button>
+                    </div>
+                </div>
+                
+                <div class="menu-item" data-id="6" data-name="Daily Special" data-price="7.99">
+                    <div class="item-name">Daily Special</div>
+                    <div class="item-description">Chef's special of the day, ask server for details</div>
+                    <div class="item-price">$7.99 <span class="special-tag">Special</span></div>
+                    <div class="item-controls">
+                        <div class="quantity-control">
+                            <button class="quantity-btn decrease">-</button>
+                            <input type="number" class="quantity-input" value="1" min="1" max="10">
+                            <button class="quantity-btn increase">+</button>
+                        </div>
+                        <button class="add-to-cart">Add to Cart</button>
+                    </div>
+                </div>
+                
+                <div class="menu-item" data-id="7" data-name="Caesar Salad" data-price="5.50">
+                    <div class="item-name">Caesar Salad</div>
+                    <div class="item-description">Crisp romaine lettuce with caesar dressing and croutons</div>
+                    <div class="item-price">$5.50</div>
+                    <div class="item-controls">
+                        <div class="quantity-control">
+                            <button class="quantity-btn decrease">-</button>
+                            <input type="number" class="quantity-input" value="1" min="1" max="10">
+                            <button class="quantity-btn increase">+</button>
+                        </div>
+                        <button class="add-to-cart">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="menu-section" id="beverages">
+            <h2 class="section-title">Beverages</h2>
+            <div class="menu-items">
+                <div class="menu-item" data-id="8" data-name="Fresh Coffee" data-price="1.99">
+                    <div class="item-name">Fresh Coffee</div>
+                    <div class="item-description">Freshly brewed black coffee</div>
+                    <div class="item-price">$1.99</div>
+                    <div class="item-controls">
+                        <div class="quantity-control">
+                            <button class="quantity-btn decrease">-</button>
+                            <input type="number" class="quantity-input" value="1" min="1" max="10">
+                            <button class="quantity-btn increase">+</button>
+                        </div>
+                        <button class="add-to-cart">Add to Cart</button>
+                    </div>
+                </div>
+                
+                <div class="menu-item" data-id="9" data-name="Fruit Smoothie" data-price="3.99">
+                    <div class="item-name">Fruit Smoothie</div>
+                    <div class="item-description">Blend of seasonal fruits with yogurt</div>
+                    <div class="item-price">$3.99</div>
+                    <div class="item-controls">
+                        <div class="quantity-control">
+                            <button class="quantity-btn decrease">-</button>
+                            <input type="number" class="quantity-input" value="1" min="1" max="10">
+                            <button class="quantity-btn increase">+</button>
+                        </div>
+                        <button class="add-to-cart">Add to Cart</button>
+                    </div>
+                </div>
+                
+                <div class="menu-item" data-id="10" data-name="Iced Tea" data-price="2.50">
+                    <div class="item-name">Iced Tea</div>
+                    <div class="item-description">Refreshing tea served with ice and lemon</div>
+                    <div class="item-price">$2.50</div>
+                    <div class="item-controls">
+                        <div class="quantity-control">
+                            <button class="quantity-btn decrease">-</button>
+                            <input type="number" class="quantity-input" value="1" min="1" max="10">
+                            <button class="quantity-btn increase">+</button>
+                        </div>
+                        <button class="add-to-cart">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="menu-section" id="snacks">
+            <h2 class="section-title">Snacks</h2>
+            <div class="menu-items">
+                <div class="menu-item" data-id="11" data-name="French Fries" data-price="2.99">
+                    <div class="item-name">French Fries</div>
+                    <div class="item-description">Crispy golden fries with ketchup</div>
+                    <div class="item-price">$2.99 <span class="special-tag veg-tag">Veg</span></div>
+                    <div class="item-controls">
+                        <div class="quantity-control">
+                            <button class="quantity-btn decrease">-</button>
+                            <input type="number" class="quantity-input" value="1" min="1" max="10">
+                            <button class="quantity-btn increase">+</button>
+                        </div>
+                        <button class="add-to-cart">Add to Cart</button>
+                    </div>
+                </div>
+                
+                <div class="menu-item" data-id="12" data-name="Chocolate Brownie" data-price="3.50">
+                    <div class="item-name">Chocolate Brownie</div>
+                    <div class="item-description">Rich chocolate brownie with nuts</div>
+                    <div class="item-price">$3.50 <span class="special-tag veg-tag">Veg</span></div>
+                    <div class="item-controls">
+                        <div class="quantity-control">
+                            <button class="quantity-btn decrease">-</button>
+                            <input type="number" class="quantity-input" value="1" min="1" max="10">
+                            <button class="quantity-btn increase">+</button>
+                        </div>
+                        <button class="add-to-cart">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Delivery Hours: Monday-Friday 7:30 AM - 2:30 PM</p>
+            <p>Minimum order for delivery: $10</p>
+            <p>All prices include tax. Menu items subject to availability.</p>
+        </footer>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cart functionality
+            const cartIcon = document.getElementById('cart-icon');
+            const cartContainer = document.getElementById('cart-container');
+            const closeCart = document.getElementById('close-cart');
+            const overlay = document.getElementById('overlay');
+            const cartItems = document.getElementById('cart-items');
+            const cartCount = document.getElementById('cart-count');
+            const cartTotalAmount = document.getElementById('cart-total-amount');
+            const checkoutBtn = document.getElementById('checkout-btn');
+            
+            let cart = [];
+            
+            // Open cart
+            cartIcon.addEventListener('click', function() {
+                cartContainer.classList.add('active');
+                overlay.classList.add('active');
+            });
+            
+            // Close cart
+            closeCart.addEventListener('click', function() {
+                cartContainer.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+            
+            overlay.addEventListener('click', function() {
+                cartContainer.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+            
+            // Quantity buttons
+            const decreaseButtons = document.querySelectorAll('.decrease');
+            const increaseButtons = document.querySelectorAll('.increase');
+            const quantityInputs = document.querySelectorAll('.quantity-input');
+            
+            decreaseButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const input = this.parentElement.querySelector('.quantity-input');
+                    let value = parseInt(input.value);
+                    if (value > 1) {
+                        input.value = value - 1;
+                    }
+                });
+            });
+            
+            increaseButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const input = this.parentElement.querySelector('.quantity-input');
+                    let value = parseInt(input.value);
+                    if (value < 10) {
+                        input.value = value + 1;
+                    }
+                });
+            });
+            
+            // Add to cart
+            const addToCartButtons = document.querySelectorAll('.add-to-cart');
+            
+            addToCartButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const menuItem = this.closest('.menu-item');
+                    const id = menuItem.dataset.id;
+                    const name = menuItem.dataset.name;
+                    const price = parseFloat(menuItem.dataset.price);
+                    const quantity = parseInt(menuItem.querySelector('.quantity-input').value);
+                    
+                    // Check if item already in cart
+                    const existingItem = cart.find(item => item.id === id);
+                    
+                    if (existingItem) {
+                        existingItem.quantity += quantity;
+                    } else {
+                        cart.push({
+                            id: id,
+                            name: name,
+                            price: price,
+                            quantity: quantity
+                        });
+                    }
+                    
+                    updateCart();
+                    
+                    // Show confirmation
+                    const confirmMsg = document.createElement('div');
+                    confirmMsg.textContent = `${quantity} × ${name} added to cart`;
+                    confirmMsg.style.position = 'fixed';
+                    confirmMsg.style.bottom = '20px';
+                    confirmMsg.style.left = '50%';
+                    confirmMsg.style.transform = 'translateX(-50%)';
+                    confirmMsg.style.backgroundColor = '#4CAF50';
+                    confirmMsg.style.color = 'white';
+                    confirmMsg.style.padding = '10px 20px';
+                    confirmMsg.style.borderRadius = '4px';
+                    confirmMsg.style.zIndex = '1000';
+                    
+                    document.body.appendChild(confirmMsg);
+                    
+                    setTimeout(() => {
+                        confirmMsg.remove();
+                    }, 2000);
+                });
+            });
+            
+            // Update cart
+            function updateCart() {
+                // Clear cart items
+                cartItems.innerHTML = '';
+                
+                // Calculate total quantity and amount
+                let totalQuantity = 0;
+                let totalAmount = 0;
+                
+                cart.forEach(item => {
+                    totalQuantity += item.quantity;
+                    totalAmount += item.price * item.quantity;
+                    
+                    // Create cart item element
+                    const cartItem = document.createElement('div');
+                    cartItem.className = 'cart-item';
+                    cartItem.innerHTML = `
+                        <div class="cart-item-info">
+                            <div class="cart-item-name">${item.name} × ${item.quantity}</div>
+                            <div class="cart-item-price">$${(item.price * item.quantity).toFixed(2)}</div>
+                        </div>
+                        <button class="remove-item" data-id="${item.id}">×</button>
+                    `;
+                    
+                    cartItems.appendChild(cartItem);
+                });
+                
+                // Update cart count and total
+                cartCount.textContent = totalQuantity;
+                cartTotalAmount.textContent = totalAmount.toFixed(2);
+                
+                // Empty cart message
+                if (cart.length === 0) {
+                    cartItems.innerHTML = '<p style="text-align: center; padding: 20px;">Your cart is empty</p>';
+                }
+                
+                // Add event listeners to remove buttons
+                const removeButtons = document.querySelectorAll('.remove-item');
+                removeButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const id = this.dataset.id;
+                        cart = cart.filter(item => item.id !== id);
+                        updateCart();
+                    });
+                });
+            }
+            
+            // Checkout
+            checkoutBtn.addEventListener('click', function() {
+                if (cart.length === 0) {
+                    alert('Your cart is empty.');
+                    return;
+                }
+                
+                alert('Proceeding to checkout! This would normally take you to a payment page.');
+                // In a real application, you would redirect to a checkout page or open a checkout modal
+            });
+            
+            // Menu navigation
+            const menuLinks = document.querySelectorAll('.menu-nav a');
+            
+            menuLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all links
+                    menuLinks.forEach(link => link.classList.remove('active'));
+                    
+                    // Add active class to clicked link
+                    this.classList.add('active');
+                    
+                    // Scroll to section
+                    const targetId = this.getAttribute('href').substring(1);
+                    const targetSection = document.getElementById(targetId);
+                    
+                    window.scrollTo({
+                        top: targetSection.offsetTop - 20,
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

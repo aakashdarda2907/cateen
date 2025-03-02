@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Campus Canteen</title>
+    <style>
+        /* Base variables */
+:root {
+  --primary-color: #ff6600; /* Orange */
+  --primary-hover: #ff8533; /* Lighter orange */
+  --primary-glow: 0 0 15px rgba(255, 102, 0, 0.5); /* Orange glow */
+  --background-dark: #0a0a0a; /* Very dark gray, almost black */
+  --card-bg: #1a1a1a; /* Slightly lighter than background */
+  --text-light: #ffffff;
+  --text-gray: #d0d0d0; /* Lighter gray for better readability */
+  --border-color: #333333;
+  --header-height: 70px; /* Fixed header height */
+  --card-spacing: 16px; /* Consistent spacing */
+}
+
+/* Global styles */
+body {
+  font-family: 'Poppins', 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: var(--background-dark);
+  color: var(--text-light);
+  line-height: 1.6;
+  letter-spacing: 0.015em;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Navigation styles */
+nav {
+  background-color: #000000;
+  color: var(--text-light);
+  padding: 15px 0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: var(--header-height);
+  padding: 0 30px;
+}
+
+.logo {
+  color: var(--primary-color);
+  font-size: 28px;
+  font-weight: 700;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  text-shadow: var(--primary-glow);
+  transition: all 0.3s ease;
+}
+
+.logo:hover {
+  color: var(--primary-hover);
+  text-shadow: 0 0 20px rgba(255, 102, 0, 0.8);
+}
+
+.nav-links {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-links a {
+  color: var(--text-light);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 8px 15px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  font-size: 16px;
+  margin-left: 10px;
+}
+
+.nav-links a:hover {
+  color: var(--primary-color);
+  background-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 5px rgba(255, 102, 0, 0.3);
+}
+
+/* Messages styles */
+.messages {
+  list-style: none;
+  padding: 15px 20px;
+  margin: 20px 0;
+  border-radius: 8px;
+  background-color: #232323;
+  border-left: 4px solid #444;
+  font-size: 16px;
+}
+
+.messages li {
+  margin: 5px 0;
+}
+
+.messages .success {
+  background-color: #143214;
+  border-left-color: #2a662a;
+}
+
+.messages .error {
+  background-color: #3e1c1c;
+  border-left-color: #8a2424;
+}
+
+/* Auth container styles */
+.auth-container {
+  background-color: var(--card-bg);
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  padding: 35px;
+  max-width: 500px;
+  margin: 50px auto;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid #333;
+}
+
+.auth-container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 15px rgba(255, 102, 0, 0.2);
+}
+
+.auth-container h1 {
+  color: var(--text-light);
+  font-size: 36px;
+  font-weight: 700;
+  border-bottom: 3px solid var(--primary-color);
+  display: inline-block;
+  padding-bottom: 8px;
+  margin: 0 0 30px 0;
+  text-shadow: 0 0 10px rgba(255, 102, 0, 0.2);
+}
+
+/* Form styles */
+.form-group {
+  margin-bottom: 25px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--text-gray);
+  font-size: 16px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 15px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background-color: #252525;
+  color: var(--text-light);
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(255, 102, 0, 0.3);
+  background-color: #2a2a2a;
+}
+
+.auth-btn {
+  display: block;
+  width: 100%;
+  background-color: var(--primary-color);
+  color: white;
+  text-align: center;
+  padding: 16px;
+  border-radius: 8px;
+  margin-top: 25px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 18px;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(255, 102, 0, 0.4);
+  border: none;
+  cursor: pointer;
+}
+
+.auth-btn:hover {
+  background-color: var(--primary-hover);
+  box-shadow: var(--primary-glow), 0 6px 20px rgba(255, 102, 0, 0.5);
+  transform: translateY(-3px);
+}
+
+.auth-links {
+  margin-top: 25px;
+  text-align: center;
+  color: var(--text-gray);
+}
+
+.auth-links a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.auth-links a:hover {
+  text-decoration: underline;
+  color: var(--primary-hover);
+  text-shadow: var(--primary-glow);
+}
+
+/* Footer styles */
+footer {
+  background-color: #000000;
+  text-align: center;
+  padding: 20px 0;
+  color: var(--text-gray);
+  margin-top: 50px;
+  font-size: 14px;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  nav {
+    flex-direction: column;
+    height: auto;
+    padding: 15px;
+  }
+  
+  .logo {
+    margin-bottom: 15px;
+  }
+  
+  .nav-links {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .nav-links a {
+    margin: 5px;
+  }
+  
+  .auth-container {
+    padding: 25px;
+  }
+  
+  .auth-container h1 {
+    font-size: 28px;
+  }
+  
+  .auth-btn {
+    padding: 14px;
+    font-size: 16px;
+  }
+}
+
+/* High contrast mode for accessibility */
+@media (prefers-contrast: high) {
+  :root {
+    --primary-color: #ff8800; /* Brighter orange */
+    --text-gray: #ffffff; /* All text white */
+  }
+  
+  .form-group input {
+    border: 2px solid #555;
+  }
+  
+  .auth-container {
+    border: 2px solid #555;
+  }
+}
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">Campus Canteen</div>
+        <div class="nav-links">
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'menu' %}">Menu</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'view_cart' %}">Cart</a>
+                <a href="{% url 'order_history' %}">My Orders</a>
+                {% if user.user_type in 'staff,owner' %}
+                    <a href="{% url 'dashboard' %}">Dashboard</a>
+                {% endif %}
+                <a href="{% url 'logout' %}">Logout</a>
+            {% else %}
+                <a href="{% url 'login' %}">Login</a>
+                <a href="{% url 'register' %}">Register</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="container">
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        <div class="auth-container">
+            <h1>Login</h1>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="auth-btn">Login</button>
+                <div class="auth-links">
+                    <p>Don't have an account? <a href="{% url 'register' %}">Register</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; {% now "Y" %} Campus Canteen. All rights reserved.</p>
+    </footer>
+</body>
+</html>

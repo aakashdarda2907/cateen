@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Management</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 1rem;
+        }
+        h1, h2, h3 {
+            margin-top: 0;
+        }
+        .order-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .orders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+        .order-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+            background-color: #f9f9f9;
+        }
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.5rem;
+        }
+        .order-items {
+            margin: 1rem 0;
+        }
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.25rem;
+        }
+        .order-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #eee;
+            padding-top: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .btn-primary {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .btn-secondary {
+            background-color: #2196F3;
+            color: white;
+        }
+        .btn-danger {
+            background-color: #f44336;
+            color: white;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .status-pending_payment {
+            background-color: #FF9800;
+            color: white;
+        }
+        .status-pending {
+            background-color: #FFC107;
+            color: #333;
+        }
+        .status-preparing {
+            background-color: #2196F3;
+            color: white;
+        }
+        .status-ready {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .status-completed {
+            background-color: #9E9E9E;
+            color: white;
+        }
+        .status-cancelled {
+            background-color: #f44336;
+            color: white;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .close {
+            float: right;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .order-details {
+            margin: 1rem 0;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+        .status-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        .refresh-button {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .icon {
+            width: 16px;
+            height: 16px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .spin {
+            animation: spin 1s linear infinite;
+        }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1001;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #ddd;
+        }
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+        }
+        .tab.active {
+            border-bottom-color: #4CAF50;
+            font-weight: bold;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid;
+        }
+        .btn-outline-primary {
+            border-color: #4CAF50;
+            color: #4CAF50;
+        }
+        .btn-outline-primary:hover {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .btn-outline-secondary {
+            border-color: #2196F3;
+            color: #2196F3;
+        }
+        .btn-outline-secondary:hover {
+            background-color: #2196F3;
+            color: white;
+        }
+        .btn-outline-danger {
+            border-color: #f44336;
+            color: #f44336;
+        }
+        .btn-outline-danger:hover {
+            background-color: #f44336;
+            color: white;
+        }
+        .auto-refresh {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-left: 1rem;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+        .switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #4CAF50;
+        }
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+        .last-updated {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <h1>Order Management</h1>
+                <div class="nav-links">
+                    <a href="{% url 'dashboard' %}">Dashboard</a>
+                    <a href="{% url 'analytics' %}">Analytics</a>
+                    <a href="{% url 'logout' %}">Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+            <button class="btn btn-primary refresh-button" id="refreshBtn">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M23 4v6h-6"></path>
+                    <path d="M1 20v-6h6"></path>
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"></path>
+                    <path d="M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                </svg>
+                Refresh Orders
+            </button>
+            <div class="auto-refresh">
+                <label class="switch">
+                    <input type="checkbox" id="autoRefreshToggle">
+                    <span class="slider"></span>
+                </label>
+                <span>Auto-refresh</span>
+            </div>
+            <div id="lastUpdated" class="last-updated" style="margin-left: 1rem;">
+                Last updated: just now
+            </div>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="active-orders">Active Orders</div>
+            <div class="tab" data-tab="completed-orders">Recently Completed</div>
+        </div>
+
+        <div class="tab-content active" id="active-orders">
+            <div class="order-section">
+                <h2>Active Orders</h2>
+                <div class="orders-grid">
+                    {% for order in active_orders %}
+                    <div class="order-card" data-order-id="{{ order.id }}">
+                        <div class="order-header">
+                            <strong>Order #{{ order.id }}</strong>
+                            <span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span>
+                            {% if order.delivery_type == 'delivery' %}
+                            <span class="delivery-badge">DELIVERY</span>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <p><strong>Customer:</strong> {{ order.user.username }}</p>
+                            <p><strong>Time:</strong> {{ order.order_date|date:"g:i A" }}</p>
+                            {% if order.delivery_type == 'delivery' and order.delivery_address %}
+                            <p class="delivery-address"><strong>Delivery to:</strong> 
+                                {{ order.delivery_address.get_address_type_display }} - 
+                                {{ order.delivery_address.address }}
+                            </p>
+                            {% endif %}
+                        </div>
+                        <div class="order-items">
+                            {% for item in order.items.all %}
+                            <div class="order-item">
+                                <span>{{ item.quantity }}x {{ item.menu_item.name }}</span>
+                                <span>₹{{ item.subtotal }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="order-footer">
+                            <strong>Total: ₹{{ order.total_amount }}</strong>
+                            <button class="btn btn-primary view-details-btn" data-order-id="{{ order.id }}">Details</button>
+                        </div>
+                        
+                        <!-- Status Action Buttons -->
+                        <div class="status-buttons">
+                            {% if order.status == 'pending_payment' %}
+                                <button class="btn btn-sm btn-outline-secondary change-status-btn" 
+                                        data-order-id="{{ order.id }}" 
+                                        data-status="pending">
+                                    Mark as Paid
+                                </button>
+                            {% elif order.status == 'pending' %}
+                                <button class="btn btn-sm btn-outline-secondary change-status-btn" 
+                                        data-order-id="{{ order.id }}" 
+                                        data-status="preparing">
+                                    Start Preparing
+                                </button>
+                            {% elif order.status == 'preparing' %}
+                                <button class="btn btn-sm btn-outline-primary change-status-btn" 
+                                        data-order-id="{{ order.id }}" 
+                                        data-status="ready">
+                                    Mark Ready
+                                </button>
+                            {% elif order.status == 'ready' %}
+                                {% if order.delivery_type == 'delivery' %}
+                                    <button class="btn btn-sm btn-outline-primary change-status-btn" 
+                                            data-order-id="{{ order.id }}" 
+                                            data-status="out_for_delivery">
+                                        Send for Delivery
+                                    </button>
+                                {% else %}
+                                    <button class="btn btn-sm btn-outline-primary change-status-btn" 
+                                            data-order-id="{{ order.id }}" 
+                                            data-status="completed">
+                                        Complete Order
+                                    </button>
+                                {% endif %}
+                            {% elif order.status == 'out_for_delivery' %}
+                                <button class="btn btn-sm btn-outline-primary change-status-btn" 
+                                        data-order-id="{{ order.id }}" 
+                                        data-status="delivered">
+                                    Mark Delivered
+                                </button>
+                            {% elif order.status == 'delivered' %}
+                                <button class="btn btn-sm btn-outline-success change-status-btn" 
+                                        data-order-id="{{ order.id }}" 
+                                        data-status="completed">
+                                    Complete Order
+                                </button>
+                            {% endif %}
+                            
+                            {% if order.status != 'cancelled' and order.status != 'completed' %}
+                                <button class="btn btn-sm btn-outline-danger change-status-btn" 
+                                        data-order-id="{{ order.id }}" 
+                                        data-status="cancelled">
+                                    Cancel Order
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p>No active orders at the moment.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="completed-orders">
+            <div class="order-section">
+                <h2>Recently Completed Orders</h2>
+                <div class="orders-grid">
+                    {% for order in recent_completed %}
+                    <div class="order-card" data-order-id="{{ order.id }}">
+                        <div class="order-header">
+                            <strong>Order #{{ order.id }}</strong>
+                            <span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span>
+                            {% if order.delivery_type == 'delivery' %}
+                            <span class="delivery-badge">DELIVERY</span>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <p><strong>Customer:</strong> {{ order.user.username }}</p>
+                            <p><strong>Completed:</strong> {{ order.completed_at|date:"g:i A" }}</p>
+                            {% if order.delivery_type == 'delivery' and order.delivery_address %}
+                            <p class="delivery-address"><strong>Delivery to:</strong> 
+                                {{ order.delivery_address.get_address_type_display }} - 
+                                {{ order.delivery_address.address }}
+                            </p>
+                            {% endif %}
+                        </div>
+                        <div class="order-items">
+                            {% for item in order.items.all %}
+                            <div class="order-item">
+                                <span>{{ item.quantity }}x {{ item.menu_item.name }}</span>
+                                <span>₹{{ item.subtotal }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="order-footer">
+                            <strong>Total: ₹{{ order.total_amount }}</strong>
+                            <button class="btn btn-secondary view-details-btn" data-order-id="{{ order.id }}">Details</button>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p>No recently completed orders.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add some CSS for delivery styling -->
+    <style>
+        .delivery-badge {
+            background-color: #ff6b6b;
+            color: white;
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-left: 8px;
+            font-size: 0.85em;
+        }
+        
+        .delivery-address {
+            background-color: #f8f9fa;
+            padding: 5px;
+            border-radius: 4px;
+            border-left: 3px solid #ff6b6b;
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+        
+        .status-out_for_delivery {
+            background-color: #17a2b8;
+        }
+        
+        .status-delivered {
+            background-color: #6610f2;
+        }
+    </style>
+    <div class="order-info-section">
+        <h3>Order Information</h3>
+        <div class="order-info-grid">
+            <div class="info-item">
+                <span class="label">Order Status:</span>
+                <span class="value status-badge status-{{ order.status }}">{{ order.get_status_display }}</span>
+            </div>
+            <div class="info-item">
+                <span class="label">Order Date:</span>
+                <span class="value">{{ order.order_date|date:"F d, Y g:i A" }}</span>
+            </div>
+            <div class="info-item">
+                <span class="label">Order Type:</span>
+                <span class="value">{{ order.get_delivery_type_display }}</span>
+            </div>
+            {% if order.delivery_type == 'delivery' and order.delivery_address %}
+            <div class="info-item delivery-info">
+                <span class="label">Delivery Address:</span>
+                <span class="value">
+                    <strong>{{ order.delivery_address.get_address_type_display }}</strong><br>
+                    {{ order.delivery_address.address }}
+                </span>
+            </div>
+            {% endif %}
+            {% if order.completed_at %}
+            <div class="info-item">
+                <span class="label">Completed:</span>
+                <span class="value">{{ order.completed_at|date:"F d, Y g:i A" }}</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Add this style section -->
+    <style>
+        .delivery-info {
+            grid-column: span 2;
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 4px solid #ff6b6b;
+        }
+        
+        .status-out_for_delivery {
+            background-color: #17a2b8;
+            color: white;
+        }
+        
+        .status-delivered {
+            background-color: #6610f2;
+            color: white;
+        }
+    </style>
+
+    <!-- Notification -->
+    <!-- <div id="notification" class="notification"></div> -->
+
+ 
+        <script>
+       // Status change buttons
+document.querySelectorAll('.change-status-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const orderId = this.getAttribute('data-order-id');
+        const newStatus = this.getAttribute('data-status');
+        
+        if (confirm('Change order status to ' + getStatusDisplay(newStatus) + '?')) {
+            // Get the CSRF token from the cookie
+            const csrftoken = getCookie('csrftoken');
+            
+            // Send AJAX request to update status
+            fetch(`/update-order-status/${orderId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({
+                    status: newStatus
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    // Show success message before reloading
+                    console.log('Status updated successfully');
+                    // Reload the page to show updated status
+                    location.reload();
+                } else {
+                    console.error('Error:', data.message);
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating the order: ' + error.message);
+            });
+        }
+    });
+});
+
+// Helper function to get status display text
+function getStatusDisplay(status) {
+    const statusMap = {
+        'pending_payment': 'Pending Payment',
+        'pending': 'Order Placed',
+        'preparing': 'Preparing',
+        'ready': 'Ready for Pickup',
+        'out_for_delivery': 'Out for Delivery',
+        'delivered': 'Delivered',
+        'completed': 'Completed',
+        'cancelled': 'Cancelled'
+    };
+    return statusMap[status] || status;
+}
+
+// Function to get CSRF token from cookies
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+            // Tab navigation
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+                    
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    document.getElementById(this.getAttribute('data-tab')).classList.add('active');
+                });
+            });
+            
+            // Refresh functionality
+            const refreshBtn = document.getElementById('refreshBtn');
+            const autoRefreshToggle = document.getElementById('autoRefreshToggle');
+            const lastUpdated = document.getElementById('lastUpdated');
+            let refreshInterval;
+            
+            // Update last updated time
+            function updateLastUpdated() {
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                lastUpdated.textContent = 'Last updated: ' + timeStr;
+            }
+            
+            // Refresh button click
+            refreshBtn.addEventListener('click', function() {
+                location.reload();
+            });
+            
+            // Auto-refresh toggle
+            autoRefreshToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    // Refresh every 30 seconds
+                    refreshInterval = setInterval(() => {
+                        location.reload();
+                    }, 30000);
+                } else {
+                    clearInterval(refreshInterval);
+                }
+            });
+            
+            // View details buttons
+            document.querySelectorAll('.view-details-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const orderId = this.getAttribute('data-order-id');
+                    window.location.href = `/order_detail/${orderId}/`;
+                });
+            });
+            
+            updateLastUpdated();
+            
+            // Check order status every 30 seconds
+            setInterval(() => {
+                checkOrderStatus();
+            }, 30000);
+    </script>
+    </body>
+</html>
