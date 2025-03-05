@@ -4,9 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Confirmation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        /* Essential variables */
         :root {
+            --primary-gradient: linear-gradient(135deg, #ff6b00, #ff9d45);
             --primary: #ff6600;
             --primary-dark: #e65c00;
             --primary-light: rgba(255, 102, 0, 0.1);
@@ -357,45 +361,403 @@ header {
     text-shadow: 1px 1px 0 #000;
   }
 }
+    
+      /* Mobile Navigation */
+      .mobile-nav-toggle {
+        display: block;
+        position: fixed;
+        top: 1.2rem;
+        right: 1.2rem;
+        z-index: 1001;
+        background: rgba(255, 107, 0, 0.2);
+        border: none;
+        cursor: pointer;
+        color: white;  /* Ensure visibility */
+        font-size: 1.5rem;
+        padding: 0.5rem;
+        border-radius: 50%;
+        backdrop-filter: blur(8px);
+        transition: all 0.3s ease;
+    }
+
+    .mobile-nav-toggle .fas {
+        /* Ensure icon is visible */
+        display: block;
+        width: 24px;
+        text-align: center;
+    }
+
+    .mobile-nav-toggle:hover {
+        background: rgba(255, 107, 0, 0.4);
+    }
+        nav {
+            background-color: black;
+            padding: 0.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.4);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            justify-content: center;
+            padding: 0.5rem 0;
+            letter-spacing: 1px;
+        }
+        .nav-links {
+            display: none;
+            flex-direction: column;
+            gap: 1rem;
+            width: 100%;
+            text-align: center;
+            padding-top: 1.2rem;
+        }
+        .nav-links.active {
+            display: flex;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: var(--light);
+            font-weight: 500;
+            position: relative;
+            padding: 0.9rem 0;
+            transition: all 0.3s ease;
+            width: 100%;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            letter-spacing: 0.5px;
+        }
+        .nav-links a:last-child {
+            border-bottom: none;
+        }
+        .nav-links a:hover {
+            color: var(--primary);
+            background-color: rgba(255, 107, 0, 0.05);
+            transform: translateX(3px);
+        }
+
+        /* Mobile CTA Buttons */
+        .mobile-cta {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(18, 18, 18, 0.95);
+            display: flex;
+            justify-content: space-around;
+            padding: 1rem;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.4);
+            z-index: 99;
+            backdrop-filter: blur(12px);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .mobile-cta a {
+            background: var(--primary-gradient);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            padding: 0.8rem 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.7rem;
+            width: 45%;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 0, 0.4);
+            letter-spacing: 0.5px;
+        }
+        .mobile-cta a:hover, .mobile-cta a:active {
+            background: linear-gradient(135deg, #e65100, #ff8c00);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 107, 0, 0.6);
+        }
+        
+        @keyframes confetti {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { 
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .confetti {
+            position: fixed;
+            top: -10px;
+            z-index: 1000;
+            width: 15px;
+            height: 15px;
+            background-color: transparent;
+            opacity: 1;
+            animation: confetti 3s linear infinite;
+        }
+
+        .surprise-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background-color: var(--card);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            z-index: 1100;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+            max-width: 90%;
+            width: 350px;
+        }
+
+        .surprise-modal.show {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .surprise-modal h2 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+
+        .surprise-modal p {
+            color: var(--text-dim);
+            margin-bottom: 20px;
+        }
+
+        .surprise-close {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .surprise-close:hover {
+            background-color: var(--primary-dark);
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-20px);}
+            60% {transform: translateY(-10px);}
+        }
+
+        @keyframes confetti {
+            0% { 
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% { 
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: transparent;
+            animation: confetti 3s linear infinite;
+        }
+        
+
+    /* Mobile Navigation */
+   .mobile-nav-toggle {
+        display: block;
+        position: fixed;
+        top: 1.2rem;
+        right: 1.2rem;
+        z-index: 1001;
+        background: rgba(255, 107, 0, 0.2);
+        border: none;
+        cursor: pointer;
+        color: white;  /* Ensure visibility */
+        font-size: 1.5rem;
+        padding: 0.5rem;
+        border-radius: 50%;
+        backdrop-filter: blur(8px);
+        transition: all 0.3s ease;
+    }
+
+    .mobile-nav-toggle .fas {
+        /* Ensure icon is visible */
+        display: block;
+        width: 24px;
+        text-align: center;
+    }
+
+    .mobile-nav-toggle:hover {
+        background: rgba(255, 107, 0, 0.4);
+    }
+        nav {
+            background-color: black;
+            padding: 0.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.4);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            justify-content: center;
+            padding: 0.5rem 0;
+            letter-spacing: 1px;
+        }
+        .nav-links {
+            display: none;
+            flex-direction: column;
+            gap: 1rem;
+            width: 100%;
+            text-align: center;
+            padding-top: 1.2rem;
+        }
+        .nav-links.active {
+            display: flex;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: var(--light);
+            font-weight: 500;
+            position: relative;
+            padding: 0.9rem 0;
+            transition: all 0.3s ease;
+            width: 100%;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            letter-spacing: 0.5px;
+        }
+        .nav-links a:last-child {
+            border-bottom: none;
+        }
+        .nav-links a:hover {
+            color: var(--primary);
+            background-color: rgba(255, 107, 0, 0.05);
+            transform: translateX(3px);
+        }
+
+        /* Mobile CTA Buttons */
+        .mobile-cta {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(18, 18, 18, 0.95);
+            display: flex;
+            justify-content: space-around;
+            padding: 1rem;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.4);
+            z-index: 99;
+            backdrop-filter: blur(12px);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .mobile-cta a {
+            background: var(--primary-gradient);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            padding: 0.8rem 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.7rem;
+            width: 45%;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 0, 0.4);
+            letter-spacing: 0.5px;
+        }
+        .mobile-cta a:hover, .mobile-cta a:active {
+            background: linear-gradient(135deg, #e65100, #ff8c00);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 107, 0, 0.6);
+        }
+        
     </style>
+    
 </head>
 <body>
-    <header>
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">
-                    <a href="{% url 'home' %}">Campus Canteen</a>
-                </div>
-                <nav>
-                    <ul>
-                        <li><a href="{% url 'home' %}">Home</a></li>
-                        <li><a href="{% url 'menu' %}">Menu</a></li>
-                        <li><a href="{% url 'view_cart' %}">Cart <span class="cart-count">{{ request.user.cart.item_count|default:0 }}</span></a></li>
-                        {% if user.is_authenticated %}
-                            <li><a href="{% url 'order_history' %}">Orders</a></li>
-                            {% if user.user_type in 'staff,owner' %}
-                                <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
-                            {% endif %}
-                            <li><a href="{% url 'logout' %}">Logout</a></li>
-                        {% else %}
-                            <li><a href="{% url 'login' %}">Login</a></li>
-                            <li><a href="{% url 'register' %}">Register</a></li>
-                        {% endif %}
-                    </ul>
-                </nav>
-            </div>
-        </div>
-    </header>
+  <button class="mobile-nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navigation">
+    <i class="fas fa-bars"></i>
+    
+</button>
+
+<nav>
+    <div class="logo">
+       EATPALZ
+    </div>
+    <div class="nav-links" id="navigation">
+        <a href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a>
+        <a href="{% url 'menu' %}"><i class="fas fa-utensils"></i> Menu</a>
+        {% if user.is_authenticated %}
+            <a href="{% url 'view_cart' %}" class="cart-badge">
+                <i class="fas fa-shopping-cart"></i> Cart 
+                {% if user.cart.item_count %}
+                <span class="cart-count">{{ user.cart.item_count }}</span>
+                {% endif %}
+            </a>
+            <a href="{% url 'order_history' %}"><i class="fas fa-history"></i> My Orders</a>
+            {% if user.user_type in 'staff,owner' %}
+                <a href="{% url 'dashboard' %}"><i class="fas fa-chart-line"></i> Dashboard</a>
+            {% endif %}
+            <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        {% else %}
+            <a href="{% url 'login' %}"><i class="fas fa-sign-in-alt"></i> Login</a>
+            <a href="{% url 'register' %}"><i class="fas fa-user-plus"></i> Register</a>
+        {% endif %}
+    </div>
+</nav>
     <div class="container">
         <div class="header">
             <h1>Order Confirmation</h1>
             <p>Thank you for your order!</p>
         </div>
 
+        <div id="orderId" style="display:none;">{{ order.id }}</div>
+
         <div class="order-details">
             <h2>Order #{{ order.id }}</h2>
             <p><strong>Date:</strong> {{ order.order_date }}</p>
-            <p><strong>Status:</strong> <span class="status status-{{ order.status }}">{{ order.get_status_display }}</span></p>
+            <p>
+                <strong>Status:</strong> 
+                <span id="orderStatus" 
+                      class="status status-{{ order.status }}" 
+                      data-current-status="{{ order.status }}">
+                    {{ order.get_status_display }}
+                </span>
+            </p>
             <p><strong>Transaction ID:</strong> {{ order.upi_transaction_id }}</p>
             {% if order.notes %}
                 <p><strong>Notes:</strong> {{ order.notes }}</p>
@@ -412,7 +774,7 @@ header {
                     <th>Subtotal</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="orderItemsBody">
                 {% for item in order_items %}
                 <tr>
                     <td>{{ item.menu_item.name }}</td>
@@ -431,19 +793,154 @@ header {
         <a href="{% url 'order_history' %}" class="btn">View All Orders</a>
     </div>
 
+    <!-- Notification Area -->
+    
+
+    <!-- Surprise Modal -->
+    <div id="surpriseModal" class="surprise-modal">
+        <h2 id="surpriseTitle">Surprise Reward!</h2>
+        <p id="surpriseDescription">Loading your special surprise...</p>
+        <button class="surprise-close" onclick="closeSurpriseModal()">Close</button>
+    </div>
+
+    <audio id="notificationSound" style="display:none;">
+        <source src="/static/notification-sound.mp3" type="audio/mpeg">
+    </audio>
+    <div class="confetti-container" id="confettiContainer"></div>
     <script>
-        // Add any JavaScript functionality here
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Order confirmation page loaded');
+        function createConfetti() {
+            const container = document.getElementById('confettiContainer');
+            const colors = ['#ff6b00', '#ffc107', '#4caf50', '#2196f3', '#9c27b0'];
             
-            // Example of status color update
-            const statusElements = document.querySelectorAll('.status');
-            statusElements.forEach(function(element) {
-                if (element.classList.contains('status-completed')) {
-                    element.style.fontWeight = 'bold';
-                }
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                
+                // Randomize position
+                confetti.style.left = `${Math.random() * 100}%`;
+                
+                // Randomize color
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                // Randomize animation delay
+                confetti.style.animationDelay = `${Math.random() * 3}s`;
+                
+                // Randomize rotation
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                
+                container.appendChild(confetti);
+            }
+
+            // Remove confetti after 4 seconds
+            setTimeout(() => {
+                container.innerHTML = ''; // Clear all confetti elements
+            }, 4000);
+        }
+
+        // Generate confetti when page loads
+        document.addEventListener('DOMContentLoaded', createConfetti);
+    </script>
+    <script>
+        // Notification Sound Function
+        function playNotificationSound() {
+            const audio = document.getElementById('notificationSound');
+            audio.play().catch(error => {
+                console.error('Error playing sound:', error);
             });
+        }
+
+        // Show Notification Function
+        function showNotification() {
+            const notification = document.getElementById('orderNotification');
+            notification.style.display = 'block';
+            
+            // Hide after 5 seconds
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 5000);
+        }
+
+        // Order Status Check Function
+        function checkOrderStatus() {
+            const orderId = document.getElementById('orderId').textContent;
+            const orderStatusElement = document.getElementById('orderStatus');
+
+            fetch(`/check-order-status/${orderId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    // Update status if it has changed
+                    if (data.status !== orderStatusElement.dataset.currentStatus) {
+                        // Update status text
+                        orderStatusElement.textContent = data.status_display;
+                        
+                        // Remove previous status classes
+                        orderStatusElement.className = orderStatusElement.className.replace(/status-\w+/, '');
+                        
+                        // Add new status class
+                        orderStatusElement.classList.add(`status-${data.status}`);
+                        
+                        // Store current status
+                        orderStatusElement.dataset.currentStatus = data.status;
+                    }
+
+                    // Check if order is ready
+                    if (data.is_ready) {
+                        // Play notification sound
+                        playNotificationSound();
+                        
+                        // Show notification
+                        showNotification();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking order status:', error);
+                });
+        }
+
+        // Surprise Modal Functions
+        function showSurpriseModal() {
+            const modal = document.getElementById('surpriseModal');
+            const surprises = [
+                {
+                    title: "Special Reward",
+                    description: "Exclusive EATPALZ coupon code HEAVY1000 - 100 rs off on orders above 500! 🎁"
+                },
+                {
+                    title: "Special Reward",
+                    description: "Exclusive EATPALZ coupon code HEAVY500 - 50 rs off on orders above 500! 🎁"
+                }
+            ];
+
+            const surprise = surprises[Math.floor(Math.random() * surprises.length)];
+            
+            document.getElementById('surpriseTitle').textContent = surprise.title;
+            document.getElementById('surpriseDescription').textContent = surprise.description;
+            
+            modal.classList.add('show');
+        }
+
+        function closeSurpriseModal() {
+            const modal = document.getElementById('surpriseModal');
+            modal.classList.remove('show');
+        }
+
+        // Page Initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check order status every 15 seconds
+            setInterval(checkOrderStatus, 15000);
+
+            // Initial status check
+            checkOrderStatus();
+
+            // Show surprise modal after 1 second
+            setTimeout(showSurpriseModal, 1000);
         });
+        document.getElementById('navToggle').addEventListener('click', function() {
+    const nav = document.getElementById('navigation');
+    nav.classList.toggle('active');
+    this.setAttribute('aria-expanded', nav.classList.contains('active'));
+     
+});
     </script>
 </body>
 </html>

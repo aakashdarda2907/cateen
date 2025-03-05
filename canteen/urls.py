@@ -15,6 +15,7 @@ path('cart/update-delivery/', views.update_delivery_option, name='update_deliver
     path('register/', views.register_view, name='register'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
+    path('check-order-status/<int:order_id>/', views.check_order_status, name='check_order_status'),
     
     # Menu routes
     path('menu/', views.menu_view, name='menu'),
@@ -44,6 +45,11 @@ path('cart/remove-coupon/', views.remove_coupon, name='remove_coupon'),
     path('dashboard/orders/update/<int:order_id>/', views.update_order_status, name='update_order_status'),
     path('dashboard/analytics/', views.analytics, name='analytics'),
     path('update-order-status/<int:order_id>/', views.update_order_status, name='update_order_status'),
+    path('get-today-orders/', views.get_today_orders, name='get_today_orders'),
+
+    #only owner
+    path('close-kitchen/', views.close_kitchen, name='close_kitchen'),
+    path('get_kitchen_status/', views.get_kitchen_status, name='get_kitchen_status'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

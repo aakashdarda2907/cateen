@@ -4,7 +4,6 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Sum, Count, Avg
-from django.urls import reverse
 from django.utils import timezone
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
@@ -13,13 +12,13 @@ from django.contrib.auth.forms import AuthenticationForm
 # from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from datetime import datetime, timedelta
-from .models import Coupon, CouponUsage, DeliveryAddress, Favorite, KitchenStatus, User, Category, MenuItem, Order, OrderItem, Cart, CartItem, PaymentInfo
+from .models import Coupon, CouponUsage, DeliveryAddress, Favorite, User, Category, MenuItem, Order, OrderItem, Cart, CartItem, PaymentInfo
 from django.db.models import Sum
 from django.db.models.functions import TruncMonth
 
 # Home page view
 def home(request):
-    featured_items = MenuItem.objects.filter(is_featured=True, is_available=True)[:12]
+    featured_items = MenuItem.objects.filter(is_featured=True, is_available=True)[:6]
     categories = Category.objects.filter(is_active=True)[:4]
     
     context = {
@@ -30,10 +29,6 @@ def home(request):
 
 # Auth views
 def register_view(request):
-    # Debug print to verify CSRF token
-    print("CSRF Token:", request.POST.get('csrfmiddlewaretoken'))
-    print("COOKIES:", request.COOKIES)
-
     if request.method == 'POST':
         # Get form data directly from request.POST
         username = request.POST.get('username')
@@ -79,36 +74,8 @@ def register_view(request):
         
         # Log the user in
         login(request, user)
-        
-        # Check for pending cart items after successful registration
-        if 'pending_item_id' in request.session:
-            item_id = request.session.pop('pending_item_id')
-            quantity = int(request.session.pop('pending_quantity', 1))
-            
-            try:
-                # Add the item to the cart
-                menu_item = MenuItem.objects.get(id=item_id, is_available=True)
-                cart = Cart.objects.get(user=user)
-                cart_item, created = CartItem.objects.get_or_create(
-                    cart=cart,
-                    menu_item=menu_item,
-                )
-                
-                if created:
-                    cart_item.quantity = quantity
-                else:
-                    cart_item.quantity += quantity
-                    
-                cart_item.save()
-                messages.success(request, f"{menu_item.name} added to cart")
-            except MenuItem.DoesNotExist:
-                messages.error(request, "The item you were trying to add is no longer available.")
-        
         messages.success(request, "Account created successfully!")
-        
-        # Redirect to the next URL if available
-        next_url = request.session.pop('next', 'home')
-        return redirect(next_url)
+        return redirect('home')
     
     return render(request, 'canteen/register.html')
 
@@ -125,35 +92,6 @@ def login_view(request):
         if user is not None:
             login(request, user)
             
-            # Check for pending cart items after successful login
-            if 'pending_item_id' in request.session:
-                item_id = request.session.pop('pending_item_id')
-                quantity = int(request.session.pop('pending_quantity', 1))
-                
-                try:
-                    # Add the item to the cart
-                    menu_item = MenuItem.objects.get(id=item_id, is_available=True)
-                    cart, created = Cart.objects.get_or_create(user=user)
-                    cart_item, created = CartItem.objects.get_or_create(
-                        cart=cart,
-                        menu_item=menu_item,
-                    )
-                    
-                    if created:
-                        cart_item.quantity = quantity
-                    else:
-                        cart_item.quantity += quantity
-                        
-                    cart_item.save()
-                    messages.success(request, f"{menu_item.name} added to cart")
-                except MenuItem.DoesNotExist:
-                    messages.error(request, "The item you were trying to add is no longer available.")
-            
-            # Redirect based on user type or next parameter
-            next_url = request.session.pop('next', None)
-            if next_url:
-                return redirect(next_url)
-            
             # Direct access to user_type from your custom User model
             if user.user_type == 'student':
                 return redirect('menu')
@@ -165,8 +103,6 @@ def login_view(request):
             messages.error(request, "Invalid username or password.")
 
     return render(request, 'canteen/login.html')
-
-    
 
 @login_required
 def logout_view(request):
@@ -252,30 +188,9 @@ def view_cart(request):
     }
     return render(request, 'canteen/cart.html', context)
 
+@login_required
 @require_POST
 def add_to_cart(request, item_id):
-    # Check if user is authenticated
-    if not request.user.is_authenticated:
-        # Store the intended action in session
-        request.session['next'] = request.META.get('HTTP_REFERER', 'menu')
-        # Store the item they were trying to add
-        request.session['pending_item_id'] = item_id
-        # Store quantity too if available
-        if 'quantity' in request.POST:
-            request.session['pending_quantity'] = request.POST.get('quantity')
-        
-        # Handle AJAX request differently
-        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            return JsonResponse({
-                'status': 'error',
-                'redirect': reverse('register'),
-                'message': 'Please register or log in to add items to your cart'
-            })
-        
-        messages.info(request, "Please register or log in to add items to your cart.")
-        return redirect('register')
-    
-    # Existing functionality for authenticated users
     menu_item = get_object_or_404(MenuItem, id=item_id, is_available=True)
     cart, created = Cart.objects.get_or_create(user=request.user)
     
@@ -336,12 +251,6 @@ def remove_from_cart(request, item_id):
 # Order related views
 @login_required
 def checkout(request):
-    # Check if kitchen is open
-    kitchen_status = KitchenStatus.get_status()
-    if not kitchen_status.is_open:
-        messages.error(request, "Sorry, the kitchen is currently closed. No new orders can be placed at this time.")
-        return redirect('home')
-
     cart = get_object_or_404(Cart, user=request.user)
     cart_items = cart.items.all()
     
@@ -355,11 +264,6 @@ def checkout(request):
         return redirect('view_cart')
     
     if request.method == 'POST':
-        # Double check if kitchen is still open (in case it was closed during checkout)
-        if not KitchenStatus.get_status().is_open:
-            messages.error(request, "Sorry, the kitchen has just closed. Your order cannot be processed at this time.")
-            return redirect('menu')
-
         upi_transaction_id = request.POST.get('upi_transaction_id')
         notes = request.POST.get('notes', '')
         
@@ -430,7 +334,6 @@ def checkout(request):
         'payment_info': payment_info,
     }
     return render(request, 'canteen/checkout.html', context)
-
 @login_required
 def order_confirmation(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
@@ -473,31 +376,29 @@ def dashboard(request):
     if request.user.user_type not in ['staff', 'owner']:
         messages.error(request, "You don't have permission to access the dashboard.")
         return redirect('home')
-
+    
     # Get today's date
     today = timezone.now().date()
-
+    
     # Get counts and statistics
     pending_orders = Order.objects.filter(
-        status__in=['pending', 'preparing', 'ready', 'out_for_delivery', 'delivered']
+        status__in=['pending', 'preparing', 'ready']
     ).count()
-
+    
     today_orders = Order.objects.filter(
         order_date__date=today
     ).count()
-
+    
     today_sales = Order.objects.filter(
         order_date__date=today,
         status='completed'
     ).aggregate(Sum('total_amount'))['total_amount__sum'] or 0
-
-    # Initialize default values
-    monthly_sales = []
-    popular_items = []
-
+    
     # For owner only: get more detailed stats
     if request.user.user_type == 'owner':
         # Get monthly sales for the last 6 months
+    
+        # Correct way to get monthly sales data
         monthly_sales = Order.objects.filter(
             status='completed'
         ).annotate(
@@ -505,33 +406,32 @@ def dashboard(request):
         ).values('month').annotate(
             amount=Sum('total_amount')
         ).order_by('month')
-
         # Get top 5 popular items
         popular_items = OrderItem.objects.values(
             'menu_item__name'
         ).annotate(
             count=Sum('quantity')
         ).order_by('-count')[:5]
-
-    # Format monthly sales data correctly
-    formatted_monthly_sales = [
-        {
-            'month_name': data['month'].strftime('%B %Y'),
-            'amount': float(data['amount'])
-        }
-        for data in monthly_sales
-    ]
-
-    # Initialize context **after** formatting is done
+    else:
+        monthly_sales = []
+        popular_items = []
+    formatted_monthly_sales = []
+    for data in monthly_sales:
+        formatted_monthly_sales.append({
+                'month_name': data['month'].strftime('%B %Y'),
+                'amount': float(data['amount'])
+            })
+        
+        context['monthly_sales'] = formatted_monthly_sales
+    
     context = {
         'pending_orders': pending_orders,
         'today_orders': today_orders,
         'today_sales': today_sales,
-        'monthly_sales': formatted_monthly_sales,  # ✅ Corrected here
+        'monthly_sales': monthly_sales,
         'popular_items': popular_items,
         'is_owner': request.user.user_type == 'owner',
     }
-
     return render(request, 'canteen/dashboard.html', context)
 
 # In views.py - order_management function update
@@ -563,83 +463,34 @@ def order_management(request):
 @login_required
 @require_POST
 def update_order_status(request, order_id):
-    # Ensure the request body is not empty
-    if not request.body:
-        return JsonResponse({
-            'status': 'error', 
-            'message': 'Request body is empty.'
-        }, status=400)
-    
     # Check if user is staff or owner
     if request.user.user_type not in ['staff', 'owner']:
-        return JsonResponse({
-            'status': 'error', 
-            'message': 'You do not have permission to update order status.'
-        }, status=403)
+        return JsonResponse({'status': 'error', 'message': 'Permission denied'}, status=403)
     
-    try:
-        # Parse JSON data
-        try:
-            data = json.loads(request.body)
-        except json.JSONDecodeError:
-            return JsonResponse({
-                'status': 'error', 
-                'message': 'Invalid JSON in request body.'
-            }, status=400)
+    order = get_object_or_404(Order, id=order_id)
+    new_status = request.POST.get('status')
+    
+    # Get the available status choices from the model
+    valid_statuses = [status[0] for status in Order.STATUS_CHOICES]
+    
+    if new_status in valid_statuses:
+        order.status = new_status
         
-        # Extract status from parsed data
-        new_status = data.get('status')
-        if not new_status:
-            return JsonResponse({
-                'status': 'error', 
-                'message': 'No status provided.'
-            }, status=400)
-
-        # Get the order
-        try:
-            order = get_object_or_404(Order, id=order_id)
-        except Exception as e:
-            return JsonResponse({
-                'status': 'error', 
-                'message': f'Order not found: {str(e)}'
-            }, status=404)
-
-        # Validate status
-        valid_statuses = [status[0] for status in Order.STATUS_CHOICES]
-        if new_status not in valid_statuses:
-            return JsonResponse({
-                'status': 'error', 
-                'message': f'Invalid status. Valid statuses are: {", ".join(valid_statuses)}'
-            }, status=400)
-
-        # Update order status
-        try:
-            order.status = new_status
-            if new_status in ['completed', 'delivered'] and not order.completed_at:
-                order.completed_at = timezone.now()
+        # If marking as completed or delivered, set completed_at time
+        if new_status in ['completed', 'delivered'] and not order.completed_at:
+            order.completed_at = timezone.now()
             
-            order.save()
-        except Exception as e:
-            return JsonResponse({
-                'status': 'error', 
-                'message': f'Error updating order status: {str(e)}'
-            }, status=500)
+        order.save()
         
-        # Return success response
         return JsonResponse({
-            'status': 'success', 
-            'message': f'Order status successfully updated to {order.get_status_display()}'
+            'status': 'success',
+            'message': f'Order status updated to {order.get_status_display()}'
         })
-
-    except Exception as e:
-        # Catch any unexpected errors
-        return JsonResponse({
-            'status': 'error', 
-            'message': f'Unexpected error: {str(e)}'
-        }, status=500)
-
-
-@login_required
+    
+    return JsonResponse({
+        'status': 'error',
+        'message': f'Invalid status: {new_status}. Valid statuses are: {", ".join(valid_statuses)}'
+    }, status=400)@login_required
 def analytics(request):
     # Only allow owner access
     if request.user.user_type != 'owner':
@@ -717,42 +568,6 @@ def analytics(request):
         'sales_by_category': sales_by_category,
     }
     return render(request, 'canteen/analytics.html', context)
-
-@login_required
-def get_today_orders(request):
-    # Check if user is staff or owner
-    if request.user.user_type not in ['staff', 'owner']:
-        return JsonResponse({'error': "You don't have permission to access this data."}, status=403)
-    
-    # Get today's date
-    today = timezone.now().date()
-    
-    # Get today's orders
-    orders = Order.objects.filter(order_date__date=today).order_by('-order_date')
-    
-    # Prepare orders data for JSON response
-    orders_data = []
-    for order in orders:
-        # Get order items
-        items = []
-        for item in OrderItem.objects.filter(order=order):
-            items.append({
-                'name': item.menu_item.name,
-                'quantity': item.quantity,
-                'price': float(item.price)
-            })
-        
-        # Add order data
-        orders_data.append({
-            'order_id': order.id,
-            'customer_name': order.user.username if order.user else 'Guest',
-            'order_time': order.order_date.strftime('%I:%M %p'),
-            'status': order.status,
-            'items': items,
-            'total_amount': float(order.total_amount)
-        })
-    
-    return JsonResponse({'orders': orders_data})
 
 @login_required
 @require_POST
@@ -922,76 +737,3 @@ def update_delivery_option(request):
     cart.save()
     messages.success(request, f"Delivery option updated to {dict(Cart.DELIVERY_CHOICES)[delivery_type]}")
     return redirect('view_cart')
-
-@login_required
-@require_POST
-def close_kitchen(request):
-    # Check if user is owner
-    if request.user.user_type != 'owner':
-        return JsonResponse({
-            'success': False,
-            'message': "You don't have permission to perform this action."
-        }, status=403)
-    
-    # Parse the request data
-    try:
-        data = json.loads(request.body)
-        closed = data.get('closed', False)
-    except json.JSONDecodeError:
-        return JsonResponse({
-            'success': False,
-            'message': "Invalid request format."
-        }, status=400)
-    
-    # Update kitchen status - if closed=True, set is_open=False and vice versa
-    kitchen_status = KitchenStatus.get_status()
-    kitchen_status.is_open = not closed  # This is the critical line
-    kitchen_status.updated_by = request.user
-    kitchen_status.save()
-    
-    # Return the new status
-    return JsonResponse({
-        'success': True,
-        'message': "Kitchen status updated successfully.",
-        'is_open': kitchen_status.is_open
-    })
-
-@login_required
-def get_kitchen_status(request):
-    # Get the current kitchen status
-    kitchen_status = KitchenStatus.get_status()
-    
-    return JsonResponse({
-        'success': True,
-        'is_open': kitchen_status.is_open,
-        'last_updated': kitchen_status.last_updated.strftime('%Y-%m-%d %H:%M:%S'),
-        'updated_by': kitchen_status.updated_by.username if kitchen_status.updated_by else None
-    })
-@login_required
-def check_order_status(request, order_id):
-    try:
-        # Get the specific order
-        order = Order.objects.get(id=order_id, user=request.user)
-        
-        # Return the current status and display text
-        return JsonResponse({
-            'status': order.status,
-            'status_display': order.get_status_display(),
-            'is_ready': order.status == 'ready'  # Add a flag for when order is ready
-        })
-    except Order.DoesNotExist:
-        return JsonResponse({'error': 'Order not found'}, status=404)
-    
-# In a file like templatetags/custom_filters.py
-from django import template
-from django.db.models import Q
-
-register = template.Library()
-
-@register.filter
-def beverage_check(order_items):
-    """
-    Check if any items in the order belong to a beverage category
-    """
-    # Assuming you want to check for a category named 'Beverages' or similar
-    return order_items.filter(menu_item__category__name__icontains='beverage').exists()

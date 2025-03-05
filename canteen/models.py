@@ -282,3 +282,17 @@ class DeliveryAddress(models.Model):
         if self.is_default:
             DeliveryAddress.objects.filter(user=self.user, is_default=True).update(is_default=False)
         super().save(*args, **kwargs)
+
+class KitchenStatus(models.Model):
+    is_open = models.BooleanField(default=True)
+    last_updated = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    
+    class Meta:
+        verbose_name_plural = "Kitchen Status"
+    
+    @classmethod
+    def get_status(cls):
+        status, created = cls.objects.get_or_create(id=1)
+        return status
+    

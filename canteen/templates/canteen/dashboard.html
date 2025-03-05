@@ -299,6 +299,56 @@
                 font-weight: bold;
                 cursor: pointer;
             }
+
+            /*chart styling*/
+            .chart-container {
+        position: relative;
+        height: 300px; /* Fixed height */
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+
+    .btn-danger {
+        background-color: #e74c3c;
+        color: white;
+    }
+    
+    .btn-danger:hover {
+        background-color: #c0392b;
+    }
+    
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    
+    .alert {
+        padding: 12px 15px;
+        margin-bottom: 15px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        transition: opacity 0.5s;
+    }
+    
+    .alert i {
+        margin-right: 10px;
+    }
+    
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    
+    .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
             /* Make the dashboard responsive */
             @media (max-width: 768px) {
                 .stats-container,
@@ -326,6 +376,7 @@
         </style>
     </head>
     <body>
+        {% csrf_token %}
         <div class="navbar">
             <a href="{% url 'home' %}" class="navbar-brand">
                 <i class="fas fa-utensils"></i> Canteen Management
@@ -419,7 +470,9 @@
                     <h3 class="data-title">
                         <i class="fas fa-chart-line"></i> Monthly Sales
                     </h3>
-                    <canvas id="salesChart"></canvas>
+                    <div class="chart-container">
+                        <canvas id="salesChart"></canvas>
+                    </div>
                 </div>
                 
                 <div class="data-card">
@@ -463,117 +516,449 @@
                         <a href="{% url 'analytics' %}" class="btn btn-accent">
                             <i class="fas fa-chart-pie"></i> View Analytics
                         </a>
+                        <button id="closeKitchenBtn" class="btn btn-danger">
+                            <i class="fas fa-times-circle"></i> Close Kitchen
+                        </button>
                         {% endif %}
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+        <!--Modals-->
+
+        <!--Today's orders modal-->
+        <div id="todayOrdersModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2><i class="fas fa-shopping-cart"></i> Today's Orders</h2>
+                <div id="todayOrdersList" class="orders-grid">
+                    <!-- Orders will be populated here via JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Add the Close Kitchen confirmation modal -->
+        <div id="closeKitchenModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2><i class="fas fa-exclamation-triangle"></i> Close Kitchen</h2>
+                <p>Are you sure you want to close the kitchen? Users will not be able to place any new orders.</p>
+                <div class="modal-footer">
+                    <button id="confirmCloseKitchen" class="btn btn-danger">Yes, Close Kitchen</button>
+                    <button id="cancelCloseKitchen" class="btn">Cancel</button>
+                </div>
+            </div>
+        </div>
+
     
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // Display current date
-        const now = new Date();
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
-        
-        // Check if the chart element exists and if we're on owner view
-        var chartElement = document.getElementById("salesChart");
-        if (chartElement) {
-            var ctx = chartElement.getContext("2d");
+        document.addEventListener("DOMContentLoaded", function() {
+            // Display current date
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
             
-            // This will be populated by Django in the context
-            var salesData = {{ monthly_sales|safe|default:"[]" }};
-            
-            // Only process if we have data
-            if (salesData && Array.isArray(salesData) && salesData.length > 0) {
-                var labels = [];
-                var amounts = [];
+            // Check if the chart element exists and if we're on owner view
+            var chartElement = document.getElementById("salesChart");
+            if (chartElement) {
+                var ctx = chartElement.getContext("2d");
                 
-                // Extract labels and data from the sales data
-                for (var i = 0; i < salesData.length; i++) {
-                    labels.push(salesData[i].month_name);
-                    amounts.push(salesData[i].amount);
-                }
+                // This will be populated by Django in the context
+                var salesData = {{ monthly_sales|safe|default:"[]" }};
                 
-                // Create the chart with sophisticated styling
-                new Chart(ctx, {
-                    type: "line",
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: "Monthly Sales (₹)",
-                            data: amounts,
-                            backgroundColor: "rgba(26, 188, 156, 0.1)",
-                            borderColor: "#1abc9c",
-                            borderWidth: 2,
-                            tension: 0.1,
-                            fill: true,
-                            pointBackgroundColor: "#fff",
-                            pointBorderColor: "#1abc9c",
-                            pointBorderWidth: 2,
-                            pointRadius: 4,
-                            pointHoverRadius: 6
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                grid: {
-                                    color: "rgba(0, 0, 0, 0.05)"
-                                },
-                                ticks: {
-                                    font: {
-                                        size: 11
-                                    },
-                                    callback: function(value) {
-                                        return '₹' + value;
-                                    }
-                                }
-                            },
-                            x: {
-                                grid: {
-                                    color: "rgba(0, 0, 0, 0.05)"
-                                },
-                                ticks: {
-                                    font: {
-                                        size: 11
-                                    }
-                                }
-                            }
+                // Only process if we have data
+                if (salesData && Array.isArray(salesData) && salesData.length > 0) {
+                    // Limit to the last 6 months to keep the chart uniform
+                    if (salesData.length > 6) {
+                        salesData = salesData.slice(-6);
+                    }
+                    
+                    var labels = [];
+                    var amounts = [];
+                    
+                    // Extract labels and data from the sales data
+                    for (var i = 0; i < salesData.length; i++) {
+                        labels.push(salesData[i].month_name);
+                        amounts.push(salesData[i].amount);
+                    }
+                    
+                    // Create the chart with sophisticated styling
+                    new Chart(ctx, {
+                        type: "line",
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: "Monthly Sales (₹)",
+                                data: amounts,
+                                backgroundColor: "rgba(26, 188, 156, 0.1)",
+                                borderColor: "#1abc9c",
+                                borderWidth: 2,
+                                tension: 0.1,
+                                fill: true,
+                                pointBackgroundColor: "#fff",
+                                pointBorderColor: "#1abc9c",
+                                pointBorderWidth: 2,
+                                pointRadius: 4,
+                                pointHoverRadius: 6
+                            }]
                         },
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
+                        options: {
+                            maintainAspectRatio: false, // This is crucial for fixed height
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: {
+                                        color: "rgba(0, 0, 0, 0.05)"
+                                    },
+                                    ticks: {
+                                        font: {
+                                            size: 11
+                                        },
+                                        callback: function(value) {
+                                            return '₹' + value;
+                                        }
+                                    }
+                                },
+                                x: {
+                                    grid: {
+                                        color: "rgba(0, 0, 0, 0.05)"
+                                    },
+                                    ticks: {
+                                        font: {
+                                            size: 11
+                                        }
+                                    }
+                                }
                             },
-                            tooltip: {
-                                backgroundColor: "rgba(44, 62, 80, 0.8)",
-                                titleFont: {
-                                    size: 13
+                            plugins: {
+                                legend: {
+                                    display: false
                                 },
-                                bodyFont: {
-                                    size: 12
-                                },
-                                callbacks: {
-                                    label: function(context) {
-                                        return 'Revenue: ₹' + context.raw;
+                                tooltip: {
+                                    backgroundColor: "rgba(44, 62, 80, 0.8)",
+                                    titleFont: {
+                                        size: 13
+                                    },
+                                    bodyFont: {
+                                        size: 12
+                                    },
+                                    callbacks: {
+                                        label: function(context) {
+                                            return 'Revenue: ₹' + context.raw;
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                });
-            } else {
-                // If no data, display a message in the chart area
-                chartElement.insertAdjacentHTML("afterend", "<div style='text-align: center; padding: 20px; color: var(--text-secondary);'>No sales data available</div>");
+                    });
+                } else {
+                    // If no data, display a message in the chart area
+                    chartElement.parentNode.innerHTML = "<div style='text-align: center; padding: 20px; color: var(--text-secondary);'>No sales data available</div>";
+                }
             }
+        });
+
+    // ******** Modal functionality *********
+
+    const todayOrdersModal = document.getElementById('todayOrdersModal');
+    const todaysOrdersBtn = document.querySelector('.stat-card:nth-child(2) .btn'); // Select the View Details button for Today's Orders
+    const closeBtn = document.querySelector('.close');
+    
+    // When the user clicks the button, open the modal and load orders
+    todaysOrdersBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        fetchTodayOrders();
+        todayOrdersModal.style.display = "block";
+    });
+    
+    // When the user clicks on the close button, close the modal
+    closeBtn.addEventListener('click', function() {
+        todayOrdersModal.style.display = "none";
+    });
+    
+    // When the user clicks anywhere outside of the modal, close it
+    window.addEventListener('click', function(event) {
+        if (event.target == todayOrdersModal) {
+            todayOrdersModal.style.display = "none";
         }
     });
+    
+    // Function to fetch today's orders from the server using AJAX
+    function fetchTodayOrders() {
+        const ordersList = document.getElementById('todayOrdersList');
+        ordersList.innerHTML = '<div class="loading" style="text-align: center; padding: 20px;">Loading orders... <i class="fas fa-spinner fa-spin"></i></div>';
+        
+        // Get CSRF token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        // Make AJAX request to get today's orders
+        fetch('{% url "get_today_orders" %}', {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Clear loading indicator
+            ordersList.innerHTML = '';
+            
+            // Check if there are any orders
+            if (data.orders.length === 0) {
+                ordersList.innerHTML = '<div class="no-orders" style="text-align: center; padding: 20px;">No orders found for today</div>';
+                return;
+            }
+            
+            // Display each order
+            data.orders.forEach(order => {
+                const orderCard = document.createElement('div');
+                orderCard.className = 'order-card';
+                
+                let itemsHtml = '';
+                order.items.forEach(item => {
+                    itemsHtml += `
+                        <div class="order-item">
+                            <span>${item.quantity}x ${item.name}</span>
+                            <span>₹${(item.price * item.quantity).toFixed(2)}</span>
+                        </div>
+                    `;
+                });
+                
+                orderCard.innerHTML = `
+                    <div class="order-header">
+                        <span>Order #${order.order_id}</span>
+                        <span class="status-badge status-${order.status.toLowerCase()}">${order.status}</span>
+                    </div>
+                    <div>
+                        <p><strong>Customer:</strong> ${order.customer_name}</p>
+                        <p><strong>Time:</strong> ${order.order_time}</p>
+                    </div>
+                    <div class="order-items">
+                        ${itemsHtml}
+                    </div>
+                    <div class="order-footer">
+                        <span><strong>Total:</strong></span>
+                        <span><strong>₹${order.total_amount.toFixed(2)}</strong></span>
+                    </div>
+                `;
+                
+                ordersList.appendChild(orderCard);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching orders:', error);
+            ordersList.innerHTML = '<div class="error" style="text-align: center; padding: 20px; color: #f44336;"><i class="fas fa-exclamation-circle"></i> Failed to load orders. Please try again.</div>';
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+    // Get the button element
+    const kitchenBtn = document.getElementById('closeKitchenBtn');
+    const closeKitchenModal = document.getElementById('closeKitchenModal');
+    const confirmCloseKitchen = document.getElementById('confirmCloseKitchen');
+    const modalTitle = document.querySelector('#closeKitchenModal h2');
+    const modalText = document.querySelector('#closeKitchenModal p');
+    
+    // Check initial kitchen status
+    checkKitchenStatus();
+    
+    // When the user clicks the Kitchen Status button, open the confirmation modal
+    kitchenBtn.addEventListener('click', function() {
+        // Check data attribute for current status instead of class
+        const isKitchenOpen = kitchenBtn.getAttribute('data-kitchen-open') === 'true';
+        
+        // Update modal content based on current kitchen status
+        if (isKitchenOpen) {
+            // Kitchen is open, so show "Close Kitchen" dialog
+            modalTitle.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Close Kitchen';
+            modalText.textContent = 'Are you sure you want to close the kitchen? Users will not be able to place any new orders.';
+            confirmCloseKitchen.textContent = 'Yes, Close Kitchen';
+            confirmCloseKitchen.classList.add('btn-danger');
+            confirmCloseKitchen.classList.remove('btn-accent');
+        } else {
+            // Kitchen is closed, so show "Open Kitchen" dialog
+            modalTitle.innerHTML = '<i class="fas fa-utensils"></i> Open Kitchen';
+            modalText.textContent = 'Are you sure you want to open the kitchen? Users will be able to place new orders.';
+            confirmCloseKitchen.textContent = 'Yes, Open Kitchen';
+            confirmCloseKitchen.classList.add('btn-accent');
+            confirmCloseKitchen.classList.remove('btn-danger');
+        }
+        
+        closeKitchenModal.style.display = "block";
+    });
+
+    // Close Kitchen Modal functionality
+    
+    const cancelCloseKitchen = document.getElementById('cancelCloseKitchen');
+    const closeKitchenModalX = closeKitchenModal.querySelector('.close');
+    
+    // When the user clicks the Close Kitchen button, open the confirmation modal
+    kitchenBtn.addEventListener('click', function() {
+        closeKitchenModal.style.display = "block";
+    });
+    
+    // Close the modal when clicking the X
+    closeKitchenModalX.addEventListener('click', function() {
+        closeKitchenModal.style.display = "none";
+    });
+    
+    // Close the modal when clicking Cancel
+    cancelCloseKitchen.addEventListener('click', function() {
+        closeKitchenModal.style.display = "none";
+    });
+    
+    // When the user clicks anywhere outside of the modal, close it
+    window.addEventListener('click', function(event) {
+        if (event.target == closeKitchenModal) {
+            closeKitchenModal.style.display = "none";
+        }
+    });
+    
+    // Confirm kitchen status change action
+    confirmCloseKitchen.addEventListener('click', function() {
+        // Get current status from button's data attribute
+        const isKitchenOpen = kitchenBtn.getAttribute('data-kitchen-open') === 'true';
+        
+        // Get CSRF token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        // Make AJAX request to toggle the kitchen status
+        // We want to close if it's open, and open if it's closed
+        fetch('{% url "close_kitchen" %}', {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                closed: isKitchenOpen  // Set closed=true if kitchen is currently open
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Close the modal
+            closeKitchenModal.style.display = "none";
+            
+            // Update the button based on the new status returned from the server
+            updateKitchenButton(data.is_open);
+            
+            // Show success message
+            const successMessage = data.is_open ? 
+                'Kitchen has been opened successfully. Users can now place orders.' : 
+                'Kitchen has been closed successfully. No new orders can be placed.';
+            
+            showMessage(successMessage, 'success');
+        })
+        .catch(error => {
+            console.error('Error toggling kitchen status:', error);
+            closeKitchenModal.style.display = "none";
+            
+            showMessage('Failed to update kitchen status. Please try again.', 'danger');
+        });
+    });
+    
+    // Function to check the current kitchen status
+    function checkKitchenStatus() {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        // Make AJAX request to get current kitchen status
+        fetch('{% url "get_kitchen_status" %}', {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Update button based on current status from server
+            updateKitchenButton(data.is_open);
+            console.log("Kitchen status from server:", data.is_open ? "Open" : "Closed");
+        })
+        .catch(error => {
+            console.error('Error fetching kitchen status:', error);
+            // Assume kitchen is open by default if we can't get the status
+            updateKitchenButton(true);
+        });
+    }
+    
+    // Function to update the kitchen button appearance
+    function updateKitchenButton(isOpen) {
+        // Store the current status in a data attribute
+        kitchenBtn.setAttribute('data-kitchen-open', isOpen);
+        
+        if (isOpen) {
+            // Kitchen is open, so button should say "Close Kitchen"
+            kitchenBtn.innerHTML = '<i class="fas fa-times-circle"></i> Close Kitchen';
+            kitchenBtn.classList.add('btn-danger');
+            kitchenBtn.classList.remove('btn-accent');
+        } else {
+            // Kitchen is closed, so button should say "Open Kitchen"
+            kitchenBtn.innerHTML = '<i class="fas fa-utensils"></i> Open Kitchen';
+            kitchenBtn.classList.add('btn-accent');
+            kitchenBtn.classList.remove('btn-danger');
+        }
+    }
+    
+    // Helper function to show messages
+    function showMessage(message, type) {
+        const messagesContainer = document.querySelector('.messages') || createMessagesContainer();
+        
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type}`;
+        
+        const icon = type === 'success' ? 
+            '<i class="fas fa-check-circle"></i>' : 
+            '<i class="fas fa-times-circle"></i>';
+        
+        alert.innerHTML = `${icon} ${message}`;
+        
+        messagesContainer.appendChild(alert);
+        
+        // Auto-hide the message after 5 seconds
+        setTimeout(() => {
+            alert.style.opacity = '0';
+            setTimeout(() => {
+                alert.remove();
+                if (messagesContainer.children.length === 0) {
+                    messagesContainer.style.display = 'none';
+                }
+            }, 500);
+        }, 5000);
+    }
+    
+    // Helper function to create messages container if it doesn't exist
+    function createMessagesContainer() {
+        const container = document.querySelector('.container');
+        const header = document.querySelector('.header');
+        
+        const messagesContainer = document.createElement('div');
+        messagesContainer.className = 'messages';
+        
+        container.insertBefore(messagesContainer, header);
+        return messagesContainer;
+    }
+});
     </script>
 </body>
 </html>
